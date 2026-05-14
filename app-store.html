@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Store - Ragentic Cube Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1890ff;
+            --primary-hover: #40a9ff;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --error-color: #f5222d;
+            --text-color: #303133;
+            --text-secondary: #606266;
+            --text-muted: #909399;
+            --border-color: #dcdfe6;
+            --border-light: #ebeef5;
+            --bg-color: #f5f7fa;
+            --bg-white: #ffffff;
+            --sidebar-bg: #304156;
+            --sidebar-text: #bfcbd9;
+            --sidebar-active: #1890ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+            font-size: 14px;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+        }
+
+        .ruoyi-sidebar {
+            background: linear-gradient(180deg, #304156 0%, #1f2d3d 100%);
+            transition: width 0.3s;
+        }
+
+        .ruoyi-sidebar .menu-item {
+            color: var(--sidebar-text);
+            transition: all 0.3s;
+        }
+
+        .ruoyi-sidebar .menu-item:hover,
+        .ruoyi-sidebar .menu-item.active {
+            color: #ffffff;
+            background-color: var(--sidebar-active);
+        }
+
+        .ruoyi-tabs {
+            border-bottom: 2px solid var(--border-light);
+            background: #fff;
+        }
+
+        .ruoyi-tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
+            color: var(--text-secondary);
+        }
+
+        .ruoyi-tab:hover {
+            color: var(--primary-color);
+        }
+
+        .ruoyi-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .ruoyi-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            color: var(--text-color);
+        }
+
+        .ruoyi-btn:hover {
+            color: var(--primary-color);
+            border-color: var(--primary-hover);
+        }
+
+        .ruoyi-btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .ruoyi-btn-primary:hover {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+
+        .ruoyi-btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .ruoyi-btn-success {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+            color: #fff;
+        }
+
+        .ruoyi-btn-success:hover {
+            background-color: #73d13d;
+            border-color: #73d13d;
+        }
+
+        .ruoyi-btn-warning {
+            background-color: var(--warning-color);
+            border-color: var(--warning-color);
+            color: #fff;
+        }
+
+        .ruoyi-btn-danger {
+            background-color: var(--error-color);
+            border-color: var(--error-color);
+            color: #fff;
+        }
+
+        .ruoyi-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .ruoyi-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        .ruoyi-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            background: #fff;
+            outline: none;
+        }
+
+        .status-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .status-success {
+            background-color: #f6ffed;
+            border: 1px solid #b7eb8f;
+            color: #52c41a;
+        }
+
+        .status-warning {
+            background-color: #fffbe6;
+            border: 1px solid #ffe58f;
+            color: #faad14;
+        }
+
+        .status-error {
+            background-color: #fff2f0;
+            border: 1px solid #ffccc7;
+            color: #f5222d;
+        }
+
+        .status-info {
+            background-color: #e6f7ff;
+            border: 1px solid #91d5ff;
+            color: #1890ff;
+        }
+
+        .toolbar-separator {
+            width: 1px;
+            height: 24px;
+            background: var(--border-color);
+            margin: 0 8px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* 应用卡片样式 */
+        .app-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            transition: all 0.3s;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .app-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .app-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        /* 分类标签 */
+        .category-tag {
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid var(--border-color);
+            background: #fff;
+        }
+
+        .category-tag:hover,
+        .category-tag.active {
+            background-color: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+
+        /* 版本时间线 */
+        .version-timeline-item {
+            position: relative;
+            padding-left: 32px;
+            padding-bottom: 20px;
+        }
+
+        .version-timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+
+        .version-timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 13px;
+            top: 24px;
+            width: 2px;
+            height: calc(100% - 24px);
+            background: var(--border-light);
+        }
+
+        .version-timeline-item:last-child::after {
+            display: none;
+        }
+
+        .version-timeline-item.current::before {
+            background: var(--success-color);
+            box-shadow: 0 0 0 2px var(--success-color);
+        }
+
+        /* 进度条 */
+        .progress-bar {
+            height: 6px;
+            background: #e8e8e8;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col">
+
+    <!-- 顶部导航栏 -->
+    <header class="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-4 shrink-0">
+        <div class="flex items-center">
+            <div class="flex items-center mr-8">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded flex items-center justify-center">
+                    <i class="fa fa-cube text-white text-lg"></i>
+                </div>
+                <span class="ml-2 font-semibold text-gray-800 text-lg">Ragentic Cube Suite</span>
+            </div>
+
+            <nav class="flex items-center space-x-1">
+                <a href="personal-workspace.html" class="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-t">首页</a>
+                <a href="bom-editor.html" class="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-t">BOM管理</a>
+                <a href="#" class="px-4 py-2 text-blue-600 font-medium border-b-2 border-blue-600">工具中心</a>
+                <a href="#" class="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-t">系统管理</a>
+            </nav>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <div class="relative">
+                <input type="text" placeholder="搜索工具..." class="ruoyi-input w-64 pl-10">
+                <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            </div>
+
+            <button class="relative p-2 text-gray-500 hover:text-blue-600 hover:bg-gray-100 rounded">
+                <i class="fa fa-bell-o text-lg"></i>
+                <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+
+            <div class="flex items-center cursor-pointer hover:bg-gray-100 rounded px-2 py-1">
+                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                    <span class="text-white text-sm font-medium">张</span>
+                </div>
+                <span class="ml-2 text-gray-700">张三</span>
+                <i class="fa fa-angle-down ml-1 text-gray-400"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主体区域 -->
+    <div class="flex flex-1 overflow-hidden">
+
+        <!-- 左侧导航菜单 -->
+        <aside class="ruoyi-sidebar w-56 shrink-0 overflow-y-auto">
+            <div class="py-2">
+                <div class="menu-item flex items-center px-4 py-3">
+                    <i class="fa fa-folder-open w-5 text-center mr-3"></i>
+                    <span>个人工作区</span>
+                </div>
+
+                <div class="menu-item flex items-center px-4 py-3">
+                    <i class="fa fa-sitemap w-5 text-center mr-3"></i>
+                    <span>BOM管理</span>
+                </div>
+
+                <div class="menu-item active flex items-center px-4 py-3">
+                    <i class="fa fa-th-large w-5 text-center mr-3"></i>
+                    <span>工具中心</span>
+                    <i class="fa fa-angle-down ml-auto text-xs"></i>
+                </div>
+
+                <div class="pl-10">
+                    <div class="menu-item flex items-center px-4 py-2 bg-blue-600 bg-opacity-30">
+                        <span>App Store</span>
+                    </div>
+                    <div class="menu-item flex items-center px-4 py-2">
+                        <span>我的工具</span>
+                    </div>
+                    <div class="menu-item flex items-center px-4 py-2">
+                        <span>安装管理</span>
+                    </div>
+                </div>
+
+                <div class="menu-item flex items-center px-4 py-3">
+                    <i class="fa fa-check-square-o w-5 text-center mr-3"></i>
+                    <span>PDQ质检</span>
+                </div>
+
+                <div class="menu-item flex items-center px-4 py-3">
+                    <i class="fa fa-cogs w-5 text-center mr-3"></i>
+                    <span>客户端配置</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 右侧主内容区 -->
+        <main class="flex-1 flex flex-col overflow-hidden bg-white">
+
+            <!-- 工具栏 -->
+            <div class="h-14 border-b border-gray-200 flex items-center px-4 shrink-0 bg-gray-50">
+                <div class="flex items-center space-x-2">
+                    <button class="ruoyi-btn ruoyi-btn-primary ruoyi-btn-sm">
+                        <i class="fa fa-plus mr-1"></i>发布新工具
+                    </button>
+                    <button class="ruoyi-btn ruoyi-btn-sm">
+                        <i class="fa fa-upload mr-1"></i>上传安装包
+                    </button>
+                    <div class="toolbar-separator"></div>
+                    <button class="ruoyi-btn ruoyi-btn-sm">
+                        <i class="fa fa-refresh mr-1"></i>刷新
+                    </button>
+                </div>
+
+                <div class="flex-1"></div>
+
+                <!-- 视图切换 -->
+                <div class="flex items-center space-x-1 mr-4">
+                    <button class="ruoyi-btn ruoyi-btn-sm px-2 bg-gray-100">
+                        <i class="fa fa-th-large"></i>
+                    </button>
+                    <button class="ruoyi-btn ruoyi-btn-sm px-2">
+                        <i class="fa fa-list"></i>
+                    </button>
+                </div>
+
+                <!-- 排序筛选 -->
+                <div class="flex items-center space-x-2">
+                    <select class="ruoyi-select w-32 text-sm">
+                        <option>全部分类</option>
+                        <option>CATIA工具</option>
+                        <option>PDQ质检</option>
+                        <option>环境配置</option>
+                        <option>数据转换</option>
+                    </select>
+                    <select class="ruoyi-select w-32 text-sm">
+                        <option>最新发布</option>
+                        <option>安装量最多</option>
+                        <option>评分最高</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 分类标签 -->
+            <div class="h-12 border-b border-gray-200 flex items-center px-4 shrink-0 bg-white space-x-2">
+                <span class="category-tag active">全部</span>
+                <span class="category-tag">
+                    <i class="fa fa-cubes mr-1 text-blue-500"></i>CATIA集成
+                </span>
+                <span class="category-tag">
+                    <i class="fa fa-check-square-o mr-1 text-green-500"></i>PDQ质检
+                </span>
+                <span class="category-tag">
+                    <i class="fa fa-sliders mr-1 text-orange-500"></i>环境配置
+                </span>
+                <span class="category-tag">
+                    <i class="fa fa-exchange mr-1 text-purple-500"></i>数据转换
+                </span>
+                <span class="category-tag">
+                    <i class="fa fa-wrench mr-1 text-gray-500"></i>辅助工具
+                </span>
+            </div>
+
+            <!-- 主内容区 -->
+            <div class="flex flex-1 overflow-hidden">
+
+                <!-- 左侧：App Store应用市场 -->
+                <div class="flex-1 flex flex-col overflow-hidden">
+                    <!-- Tab标签 -->
+                    <div class="ruoyi-tabs flex items-center px-4 shrink-0">
+                        <div class="ruoyi-tab active flex items-center">
+                            <i class="fa fa-shopping-bag mr-2 text-blue-500"></i>
+                            应用市场
+                        </div>
+                        <div class="ruoyi-tab flex items-center">
+                            <i class="fa fa-download mr-2 text-gray-400"></i>
+                            已安装
+                        </div>
+                        <div class="ruoyi-tab flex items-center">
+                            <i class="fa fa-star mr-2 text-gray-400"></i>
+                            我的收藏
+                        </div>
+                    </div>
+
+                    <!-- 应用卡片网格 -->
+                    <div class="flex-1 overflow-auto p-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+
+                            <!-- App 1: CATIA 集成客户端 -->
+                            <div class="app-card">
+                                <div class="p-4">
+                                    <div class="flex items-start">
+                                        <div class="app-icon bg-blue-100 text-blue-600 mr-3">
+                                            <i class="fa fa-puzzle-piece"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h3 class="font-semibold text-gray-800">CATIA 集成客户端</h3>
+                                            <p class="text-xs text-gray-500 mt-1">版本 v2.1.0</p>
+                                        </div>
+                                        <span class="status-tag status-success">已上架</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-3 line-clamp-2">
+                                        提供CATIA V5/V6与平台的深度集成，支持文件一键打开/保存回传、BOM同步、属性映射等功能。
+                                    </p>
+                                    <div class="flex items-center mt-3 text-xs text-gray-500">
+                                        <span class="flex items-center mr-4">
+                                            <i class="fa fa-download mr-1"></i>1,234
+                                        </span>
+                                        <span class="flex items-center mr-4">
+                                            <i class="fa fa-star text-yellow-400 mr-1"></i>4.8
+                                        </span>
+                                        <span>CATIA工具</span>
+                                    </div>
+                                </div>
+                                <div class="border-t border-gray-100 px-4 py-3 flex justify-between items-center">
+                                    <div class="flex items-center space-x-1">
+                                        <span class="status-tag status-info">官方</span>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="ruoyi-btn ruoyi-btn-sm">详情</button>
+                                        <button class="ruoyi-btn ruoyi-btn-primary ruoyi-btn-sm">
+                                            <i class="fa fa-download mr-1"></i>安装
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- App 2: PDQ质检工具 -->
+                            <div class="app-card">
+                                <div class="p-4">
+                                    <div class="flex items-start">
+                                        <div class="app-icon bg-green-100 text-green-600 mr-3">
+                                            <i class="fa fa-check-square-o"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h3 class="font-semibold text-gray-800">PDQ 质检工具</h3>
+                                            <p class="text-xs text-gray-500 mt-1">版本 v3.0.0</p>
+                                        </div>
+                                        <span class="status-tag status-success">已上架</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-3 line-clamp-2">
+                                        产品数据质量检查工具，支持几何规范、命名规范、属性完整性等50+检查规则，支持自动修复。
+                                    </p>
+                                    <div class="flex items-center mt-3 text-xs text-gray-500">
+                                        <span class="flex items-center mr-4">
+                                            <i class="fa fa-download mr-1"></i>2,456
+                                        </span>
+                                        <span class="flex items-center mr-4">
+                                            <i class="fa fa-star text-yellow-400 mr-1"></i>4.9
+                                        </span>
+                                        <span>PDQ质检</span>
+                                    </div>
+                                </div>
+                                <div class="border-t border-gray-100 px-4 py-3 flex justify-between items-center">
+                                    <div class="flex items-center space-x-1">
+                                        <span class="status-tag status-info">官方</span>
+                                        <span class="status-tag status-warning">增值服务</span>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="ruoyi-btn ruoyi-btn-sm">详情</button>
+                                        <button class="ruoyi-btn ruoyi-btn-primary ruoyi-btn-sm">
+                                            <i class="fa fa-download mr-1"></i>安装
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- App 3: 客户端环境配置工具 -->
+                            <div class="app-card">
+                                <div class="p-4">
+                                    <div class="flex items-start">
+                                        <div class="app-icon bg-orange-100 text-orange-600 mr-3">
+                                            <i class="fa fa-sliders"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h3 class="font-semibold text-gray-800">环境配置工具</h3>
+                                            <p class="text-xs text-gray-500 mt-1">版本 v1.5.2</p>
+                                        </div>
+                                        <span class="status-tag status-success">已上架</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-3 line-clamp-2">
+                                        自动检测和配置CATIA运行环境，支持多版本CATIA管理、环境变量配置、组件修复等功能。
+                                    </p>
+                                    <div class="flex items-center mt-3 text-xs text-gray-500">
+                                        <span class="flex items-center mr-4">
+                                            <i class="fa fa-download mr-1"></i>876
+                                        </span>
+                                        <span class="flex items-center mr-4">
+                                            <i class="fa fa-star text-yellow-400 mr-1"></i>4.7
+                                        </span>
+                                        <span>环境配置</span>
+                                    </div>
+                                </div>
+                                <div class="border-t border-gray-100 px-4 py-3 flex justify-between items-center">
+                                    <div class="flex items-center space-x-1">
+                                        <span class="status-tag status-info">官方</span>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="ruoyi-btn ruoyi-btn-sm">详情</button>
+                                        <button class="ruoyi-btn ruoyi-btn-success ruoyi-btn-sm">
+                                            <i class="fa fa-check mr-1"></i>已安装
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- App 4: CATIA 版本转换器 -->
+                            <div class="app-card">
+                                <div class="p-4">
+                                    <div class="flex items-start">
+                                        <div class="app-icon bg-purple-100 text-purple-600 mr-3">
+                                            <i class="fa fa-exchange"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h3 class="font-semibold text-gray-800">CATIA 版本转换器</h3>
+                                            <p class="text-xs text-gray-500 mt-1">版本 v2.0.1</p>
+                                        </div>
+                                        <span class="status-tag status-success">已上架</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-3 line-clamp-2">
+                                        支持CATIA V5/V6多版本双向转换，STEP/IGES格式互转，批量转换，保持几何精度。
+                                    </p>
+                                    <div class="flex items-center mt-3 text-xs text-gray-500">
+                                        <span class="flex items-center mr-4">
+                                            <i class="fa fa-download mr-1"></i>654
+                                        </span>
+                                        <span class="flex items-center mr-4">
+                                            <i class="fa fa-star text-yellow-400 mr-1"></i>4.6
+                                        </span>
+                                        <span>数据转换</span>
+                                    </div>
+                                </div>
+                                <div class="border-t border-gray-100 px-4 py-3 flex justify-between items-center">
+                                    <div class="flex items-center space-x-1">
+                                        <span class="status-tag status-info">官方</span>
+                                        <span class="status-tag status-warning">增值服务</span>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="ruoyi-btn ruoyi-btn-sm">详情</button>
+                                        <button class="ruoyi-btn ruoyi-btn-primary ruoyi-btn-sm">
+                                            <i class="fa fa-download mr-1"></i>安装
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- App 5: BOM属性映射工具 -->
+                            <div class="app-card">
+                                <div class="p-4">
+                                    <div class="flex items-start">
+                                        <div class="app-icon bg-blue-100 text-blue-600 mr-3">
+                                            <i class="fa fa-random"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h3 class="font-semibold text-gray-800">BOM属性映射工具</h3>
+                                            <p class="text-xs text-gray-500 mt-1">版本 v1.2.0</p>
+                                        </div>
+                                        <span class="status-tag status-warning">待发布</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-3 line-clamp-2">
+                                        异构BOM属性映射工具，支持多格式BOM导入导出，自定义映射规则，自动匹配填充。
+                                    </p>
+                                    <div class="flex items-center mt-3 text-xs text-gray-500">
+                                        <span class="flex items-center mr-4">
+                                            <i class="fa fa-download mr-1"></i>-
+                                        </span>
+                                        <span class="flex items-center mr-4">
+                                            <i class="fa fa-star text-yellow-400 mr-1"></i>-
+                                        </span>
+                                        <span>辅助工具</span>
+                                    </div>
+                                </div>
+                                <div class="border-t border-gray-100 px-4 py-3 flex justify-between items-center">
+                                    <div class="flex items-center space-x-1">
+                                        <span class="status-tag status-info">官方</span>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="ruoyi-btn ruoyi-btn-sm">详情</button>
+                                        <button class="ruoyi-btn ruoyi-btn-sm" disabled>
+                                            <i class="fa fa-clock-o mr-1"></i>待发布
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- App 6: 几何修复助手 -->
+                            <div class="app-card">
+                                <div class="p-4">
+                                    <div class="flex items-start">
+                                        <div class="app-icon bg-red-100 text-red-600 mr-3">
+                                            <i class="fa fa-magic"></i>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h3 class="font-semibold text-gray-800">几何修复助手</h3>
+                                            <p class="text-xs text-gray-500 mt-1">版本 v1.0.0</p>
+                                        </div>
+                                        <span class="status-tag status-success">已上架</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-3 line-clamp-2">
+                                        自动修复常见几何问题，包括小面片缝合、精度统一、重复几何删除、布尔修复等，支持一键回滚。
+                                    </p>
+                                    <div class="flex items-center mt-3 text-xs text-gray-500">
+                                        <span class="flex items-center mr-4">
+                                            <i class="fa fa-download mr-1"></i>432
+                                        </span>
+                                        <span class="flex items-center mr-4">
+                                            <i class="fa fa-star text-yellow-400 mr-1"></i>4.5
+                                        </span>
+                                        <span>PDQ质检</span>
+                                    </div>
+                                </div>
+                                <div class="border-t border-gray-100 px-4 py-3 flex justify-between items-center">
+                                    <div class="flex items-center space-x-1">
+                                        <span class="status-tag status-info">官方</span>
+                                        <span class="status-tag status-warning">增值服务</span>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="ruoyi-btn ruoyi-btn-sm">详情</button>
+                                        <button class="ruoyi-btn ruoyi-btn-primary ruoyi-btn-sm">
+                                            <i class="fa fa-download mr-1"></i>安装
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- 分页 -->
+                        <div class="mt-6 flex items-center justify-between">
+                            <div class="text-sm text-gray-600">
+                                显示 1 - 6 个应用，共 12 个
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button class="ruoyi-btn ruoyi-btn-sm px-3">上一页</button>
+                                <button class="ruoyi-btn ruoyi-btn-primary ruoyi-btn-sm px-3">1</button>
+                                <button class="ruoyi-btn ruoyi-btn-sm px-3">2</button>
+                                <button class="ruoyi-btn ruoyi-btn-sm px-3">下一页</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧：工具详情面板 -->
+                <div class="w-96 shrink-0 border-l border-gray-200 flex flex-col overflow-hidden">
+                    <!-- 详情头部 -->
+                    <div class="p-4 border-b border-gray-200 bg-gray-50">
+                        <h3 class="font-medium text-gray-700 flex items-center">
+                            <i class="fa fa-info-circle text-blue-500 mr-2"></i>
+                            工具详情
+                        </h3>
+                    </div>
+
+                    <!-- 详情内容 -->
+                    <div class="flex-1 overflow-auto p-4">
+                        <!-- 工具头部信息 -->
+                        <div class="mb-6">
+                            <div class="flex items-start">
+                                <div class="app-icon bg-green-100 text-green-600 mr-4" style="width: 80px; height: 80px; font-size: 36px;">
+                                    <i class="fa fa-check-square-o"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-xl font-semibold text-gray-800">PDQ 质检工具</h3>
+                                    <p class="text-gray-500 mt-1">版本 v3.0.0</p>
+                                    <div class="flex items-center mt-2">
+                                        <span class="status-tag status-success mr-2">已上架</span>
+                                        <span class="status-tag status-info mr-2">官方</span>
+                                        <span class="status-tag status-warning">增值服务</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 统计信息 -->
+                        <div class="mb-6 grid grid-cols-3 gap-4">
+                            <div class="text-center p-3 bg-blue-50 rounded-lg">
+                                <div class="text-2xl font-bold text-blue-600">2,456</div>
+                                <div class="text-xs text-gray-500 mt-1">安装量</div>
+                            </div>
+                            <div class="text-center p-3 bg-green-50 rounded-lg">
+                                <div class="text-2xl font-bold text-green-600">4.9</div>
+                                <div class="text-xs text-gray-500 mt-1">评分</div>
+                            </div>
+                            <div class="text-center p-3 bg-purple-50 rounded-lg">
+                                <div class="text-2xl font-bold text-purple-600">50+</div>
+                                <div class="text-xs text-gray-500 mt-1">检查规则</div>
+                            </div>
+                        </div>
+
+                        <!-- 工具描述 -->
+                        <div class="mb-6">
+                            <h4 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                                <i class="fa fa-file-text-o text-blue-500 mr-2"></i>
+                                功能描述
+                            </h4>
+                            <div class="text-sm text-gray-600 space-y-2">
+                                <p>PDQ质检工具是一款专业的产品数据质量检查工具，专为CATIA设计数据打造。</p>
+                                <p class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span>支持几何规范、命名规范、属性完整性等50+检查规则</span>
+                                </p>
+                                <p class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span>支持本地检查模式，原始模型不上传服务器</span>
+                                </p>
+                                <p class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span>自动修复常见问题，支持一键修复和批量修复</span>
+                                </p>
+                                <p class="flex items-start">
+                                    <i class="fa fa-check-circle text-green-500 mt-1 mr-2"></i>
+                                    <span>生成详细检查报告，支持Excel/PDF导出</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 版本历史时间线 -->
+                        <div class="mb-6">
+                            <h4 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                                <i class="fa fa-history text-blue-500 mr-2"></i>
+                                版本历史
+                            </h4>
+                            <div class="space-y-1">
+                                <div class="version-timeline-item current">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-medium text-green-600">v3.0.0</span>
+                                        <span class="text-xs text-gray-500">2026-05-01</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600 mt-1">全新规则引擎，支持50+检查规则，新增云端几何修复</p>
+                                </div>
+                                <div class="version-timeline-item">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-medium">v2.5.0</span>
+                                        <span class="text-xs text-gray-500">2026-03-15</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600 mt-1">性能优化，批量检查速度提升300%</p>
+                                </div>
+                                <div class="version-timeline-item">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-medium">v2.0.0</span>
+                                        <span class="text-xs text-gray-500">2026-01-20</span>
+                                    </div>
+                                    <p class="text-xs text-gray-600 mt-1">支持本地检查模式，数据安全升级</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 系统要求 -->
+                        <div class="mb-6">
+                            <h4 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                                <i class="fa fa-desktop text-blue-500 mr-2"></i>
+                                系统要求
+                            </h4>
+                            <table class="w-full text-sm">
+                                <tbody>
+                                    <tr class="border-b border-gray-100">
+                                        <td class="py-2 px-3 text-gray-500 w-24">操作系统</td>
+                                        <td class="py-2 px-3">Windows 10/11 64位</td>
+                                    </tr>
+                                    <tr class="border-b border-gray-100">
+                                        <td class="py-2 px-3 text-gray-500">CATIA版本</td>
+                                        <td class="py-2 px-3">V5R21/R28, V6 201x-202x</td>
+                                    </tr>
+                                    <tr class="border-b border-gray-100">
+                                        <td class="py-2 px-3 text-gray-500">内存</td>
+                                        <td class="py-2 px-3">8GB+ 推荐</td>
+                                    </tr>
+                                    <tr class="border-b border-gray-100">
+                                        <td class="py-2 px-3 text-gray-500">磁盘空间</td>
+                                        <td class="py-2 px-3">≥ 2GB 可用空间</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2 px-3 text-gray-500">.NET版本</td>
+                                        <td class="py-2 px-3">.NET Framework 4.7.2+</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 下载包信息 -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                                <i class="fa fa-cloud-download text-blue-500 mr-2"></i>
+                                下载包信息
+                            </h4>
+                            <div class="bg-gray-50 rounded-lg p-3">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium">PDQ-Checker-v3.0.0-x64.msi</span>
+                                    <span class="status-tag status-success">最新</span>
+                                </div>
+                                <div class="text-xs text-gray-500 space-y-1">
+                                    <div class="flex justify-between">
+                                        <span>文件大小：125 MB</span>
+                                        <span>MD5：a1b2c3d4e5f6...</span>
+                                    </div>
+                                    <div>发布时间：2026-05-01 10:00:00</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 底部操作按钮 -->
+                    <div class="p-4 border-t border-gray-200 bg-gray-50">
+                        <div class="flex space-x-2">
+                            <button class="ruoyi-btn ruoyi-btn-primary flex-1">
+                                <i class="fa fa-download mr-1"></i>立即安装
+                            </button>
+                            <button class="ruoyi-btn">
+                                <i class="fa fa-star-o mr-1"></i>收藏
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Tab切换
+        document.querySelectorAll('.ruoyi-tab').forEach((tab, index) => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.ruoyi-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+
+                document.querySelectorAll('.ruoyi-tab i').forEach(i => {
+                    i.classList.remove('text-blue-500');
+                    i.classList.add('text-gray-400');
+                });
+                this.querySelector('i').classList.remove('text-gray-400');
+                this.querySelector('i').classList.add('text-blue-500');
+            });
+        });
+
+        // 分类标签切换
+        document.querySelectorAll('.category-tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                document.querySelectorAll('.category-tag').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>协同空间列表 - RuoYi</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <link rel="stylesheet" href="https://unpkg.com/@element-plus/icons-vue/dist/index.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .ruoyi-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .ruoyi-sidebar {
+            width: 210px;
+            background: #304156;
+            color: #fff;
+            flex-shrink: 0;
+            transition: width 0.3s;
+        }
+
+        .ruoyi-sidebar-header {
+            height: 50px;
+            line-height: 50px;
+            text-align: center;
+            background: #263445;
+            font-size: 18px;
+            font-weight: 600;
+            border-bottom: 1px solid #1f2d3d;
+        }
+
+        .ruoyi-menu {
+            padding: 10px 0;
+        }
+
+        .ruoyi-menu-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ruoyi-menu-item:hover {
+            background: #263445;
+        }
+
+        .ruoyi-menu-item.active {
+            background: #409EFF;
+        }
+
+        .ruoyi-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ruoyi-header {
+            height: 50px;
+            background: #fff;
+            box-shadow: 0 1px 4px rgba(0, 21, 41, .08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+
+        .ruoyi-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #606266;
+            font-size: 14px;
+        }
+
+        .ruoyi-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .ruoyi-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #409EFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .ruoyi-content {
+            flex: 1;
+            padding: 20px;
+            overflow: auto;
+        }
+
+        .ruoyi-card {
+            background: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .ruoyi-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .ruoyi-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+        }
+
+        .ruoyi-search-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .workspace-card {
+            border: 1px solid #ebeef5;
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+            background: #fff;
+        }
+
+        .workspace-card:hover {
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .workspace-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .workspace-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 24px;
+        }
+
+        .workspace-icon.team {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .workspace-icon.project {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .workspace-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .tag-default {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .tag-public {
+            background: #ecf5ff;
+            color: #409EFF;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .tag-protected {
+            background: #fdf6ec;
+            color: #e6a23c;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .tag-private {
+            background: #fef0f0;
+            color: #f56c6c;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .workspace-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            margin-bottom: 8px;
+        }
+
+        .workspace-desc {
+            font-size: 14px;
+            color: #909399;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .workspace-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #606266;
+        }
+
+        .workspace-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #ebeef5;
+        }
+
+        .workspace-creator {
+            font-size: 13px;
+            color: #909399;
+        }
+
+        .workspace-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .workspace-switcher {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 12px;
+            background: #f5f7fa;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .workspace-switcher:hover {
+            background: #ecf5ff;
+        }
+
+        .workspace-switcher-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #e4e7ed;
+            border-radius: 4px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            display: none;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .workspace-switcher-dropdown.show {
+            display: block;
+        }
+
+        .workspace-switcher-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f5f7fa;
+            transition: all 0.3s;
+        }
+
+        .workspace-switcher-item:hover {
+            background: #f5f7fa;
+        }
+
+        .workspace-switcher-item.current {
+            background: #ecf5ff;
+            color: #409EFF;
+        }
+
+        .switcher-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .switcher-item-name {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .switcher-item-tag {
+            font-size: 11px;
+            padding: 1px 6px;
+            border-radius: 8px;
+        }
+
+        .switcher-item-desc {
+            font-size: 12px;
+            color: #909399;
+        }
+
+        .switcher-item-manage {
+            text-align: center;
+            padding: 12px;
+            color: #409EFF;
+            cursor: pointer;
+            border-top: 1px solid #ebeef5;
+        }
+
+        .switcher-item-manage:hover {
+            background: #f5f7fa;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .role-owner {
+            background: #fef0f0;
+            color: #f56c6c;
+        }
+
+        .role-admin {
+            background: #ecf5ff;
+            color: #409EFF;
+        }
+
+        .role-member {
+            background: #f0f9eb;
+            color: #67c23a;
+        }
+
+        .role-viewer {
+            background: #f4f4f5;
+            color: #909399;
+        }
+
+        .user-avatar-small {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #b3d8ff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #409EFF;
+            font-size: 14px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="ruoyi-layout">
+        <!-- 左侧侧边栏 -->
+        <aside class="ruoyi-sidebar">
+            <div class="ruoyi-sidebar-header">
+                <span style="color: #409EFF;">RuoYi</span>
+                <span style="color: #909399; font-size: 14px; margin-left: 5px;">供应商协同</span>
+            </div>
+            <nav class="ruoyi-menu">
+                <div class="ruoyi-menu-item">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    首页
+                </div>
+                <div class="ruoyi-menu-item active">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    协同空间
+                </div>
+                <div class="ruoyi-menu-item">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    我的工作
+                </div>
+                <div class="ruoyi-menu-item">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    产品结构
+                </div>
+                <div class="ruoyi-menu-item">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                        <path d="M2 17l10 5 10-5"></path>
+                        <path d="M2 12l10 5 10-5"></path>
+                    </svg>
+                    应用商店
+                </div>
+                <div class="ruoyi-menu-item">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1 1 0 0 0-1.51 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-3.09a1 1 0 0 0-1.51-1.51 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 .33-1.82 1 1 0 0 0-1.51-1.51H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h3.09a1 1 0 0 0 1.51-1.51 1.65 1.65 0 0 0-1.82.33l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33 1 1 0 0 0 1.51-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v3.09a1 1 0 0 0 1.51 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82 1 1 0 0 0 1.51 1.51H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-3.09a1 1 0 0 0-1.51 1.51z"></path>
+                    </svg>
+                    系统管理
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="ruoyi-main">
+            <!-- 顶部导航 -->
+            <header class="ruoyi-header">
+                <div class="ruoyi-breadcrumb">
+                    <span>首页</span>
+                    <span>/</span>
+                    <span>协同空间</span>
+                    <span>/</span>
+                    <span>空间列表</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <!-- 工作空间切换器 -->
+                    <div class="workspace-switcher" id="workspaceSwitcher">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="#606266" stroke-width="2" fill="none">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                        </svg>
+                        <span>默认工作空间</span>
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="#606266" stroke-width="2" fill="none">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </div>
+                    <div class="ruoyi-user">
+                        <div class="ruoyi-avatar">管</div>
+                        <span>管理员</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 内容区 -->
+            <div class="ruoyi-content">
+                <div class="ruoyi-card">
+                    <div class="ruoyi-card-header">
+                        <div class="ruoyi-card-title">协同空间</div>
+                        <button type="button" class="el-button el-button--primary" onclick="showCreateModal()">
+                            <span>创建空间</span>
+                        </button>
+                    </div>
+
+                    <!-- 搜索筛选栏 -->
+                    <div class="ruoyi-search-bar">
+                        <div class="el-input" style="width: 250px;">
+                            <input type="text" class="el-input__inner" placeholder="请输入空间名称搜索" />
+                        </div>
+                        <div class="el-select" style="width: 150px;">
+                            <div class="el-input">
+                                <input type="text" class="el-input__inner" placeholder="权限级别" readonly />
+                            </div>
+                        </div>
+                        <div class="el-select" style="width: 150px;">
+                            <div class="el-input">
+                                <input type="text" class="el-input__inner" placeholder="状态" readonly />
+                            </div>
+                        </div>
+                        <button type="button" class="el-button el-button--primary">
+                            <span>搜索</span>
+                        </button>
+                        <button type="button" class="el-button">
+                            <span>重置</span>
+                        </button>
+                    </div>
+
+                    <!-- 空间卡片列表 -->
+                    <div class="workspace-grid">
+                        <!-- 默认空间 -->
+                        <div class="workspace-card" onclick="goToDetail('1')">
+                            <div class="workspace-card-header">
+                                <div class="workspace-icon team">
+                                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="9" cy="7" r="4"></circle>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                    </svg>
+                                </div>
+                                <div class="workspace-tags">
+                                    <span class="tag-default">默认</span>
+                                    <span class="tag-public">Public</span>
+                                </div>
+                            </div>
+                            <div class="workspace-name">默认工作空间</div>
+                            <div class="workspace-desc">租户默认工作空间，用于团队协同工作和数据共享</div>
+                            <div class="workspace-meta">
+                                <span>👥 23 成员</span>
+                                <span>📂 8 项目</span>
+                            </div>
+                            <div class="workspace-footer">
+                                <span class="workspace-creator">张三 · 3天前</span>
+                                <div class="workspace-actions">
+                                    <button class="el-button el-button--text el-button--small" style="color: #409EFF;" onclick="event.stopPropagation(); goToDetail('1')">查看详情</button>
+                                    <button class="el-button el-button--text el-button--small" style="color: #e6a23c;" onclick="event.stopPropagation(); goToRoles('1')">角色管理</button>
+                                    <button class="el-button el-button--text el-button--small" style="color: #67c23a;" onclick="event.stopPropagation(); goToMembers('1')">成员管理</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 研发团队空间 -->
+                        <div class="workspace-card" onclick="goToDetail('2')">
+                            <div class="workspace-card-header">
+                                <div class="workspace-icon team">
+                                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="9" cy="7" r="4"></circle>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                    </svg>
+                                </div>
+                                <div class="workspace-tags">
+                                    <span class="tag-public">Public</span>
+                                </div>
+                            </div>
+                            <div class="workspace-name">研发团队空间</div>
+                            <div class="workspace-desc">研发团队协同工作空间，管理产品研发相关的文档和数据</div>
+                            <div class="workspace-meta">
+                                <span>👥 15 成员</span>
+                                <span>📂 5 项目</span>
+                            </div>
+                            <div class="workspace-footer">
+                                <span class="workspace-creator">李四 · 1周前</span>
+                                <div class="workspace-actions">
+                                    <button class="el-button el-button--text el-button--small" style="color: #409EFF;" onclick="event.stopPropagation(); goToDetail('2')">查看详情</button>
+                                    <button class="el-button el-button--text el-button--small" style="color: #e6a23c;" onclick="event.stopPropagation(); goToRoles('2')">角色管理</button>
+                                    <button class="el-button el-button--text el-button--small" style="color: #67c23a;" onclick="event.stopPropagation(); goToMembers('2')">成员管理</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 供应商协同空间 -->
+                        <div class="workspace-card" onclick="goToDetail('3')">
+                            <div class="workspace-card-header">
+                                <div class="workspace-icon project">
+                                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
+                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                    </svg>
+                                </div>
+                                <div class="workspace-tags">
+                                    <span class="tag-private">Private</span>
+                                </div>
+                            </div>
+                            <div class="workspace-name">供应商协同空间</div>
+                            <div class="workspace-desc">与外部供应商协同的工作空间，用于共享技术文档和沟通</div>
+                            <div class="workspace-meta">
+                                <span>👥 8 成员</span>
+                                <span>📂 3 项目</span>
+                            </div>
+                            <div class="workspace-footer">
+                                <span class="workspace-creator">王五 · 2周前</span>
+                                <div class="workspace-actions">
+                                    <button class="el-button el-button--text el-button--small" style="color: #409EFF;" onclick="event.stopPropagation(); goToDetail('3')">查看详情</button>
+                                    <button class="el-button el-button--text el-button--small" style="color: #e6a23c;" onclick="event.stopPropagation(); goToRoles('3')">角色管理</button>
+                                    <button class="el-button el-button--text el-button--small" style="color: #67c23a;" onclick="event.stopPropagation(); goToMembers('3')">成员管理</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 测试团队空间 -->
+                        <div class="workspace-card" onclick="goToDetail('4')">
+                            <div class="workspace-card-header">
+                                <div class="workspace-icon project">
+                                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
+                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                    </svg>
+                                </div>
+                                <div class="workspace-tags">
+                                    <span class="tag-protected">Protected</span>
+                                </div>
+                            </div>
+                            <div class="workspace-name">测试团队空间</div>
+                            <div class="workspace-desc">测试团队专用空间，管理测试用例、测试报告和缺陷跟踪</div>
+                            <div class="workspace-meta">
+                                <span>👥 10 成员</span>
+                                <span>📂 4 项目</span>
+                            </div>
+                            <div class="workspace-footer">
+                                <span class="workspace-creator">赵六 · 1个月前</span>
+                                <div class="workspace-actions">
+                                    <button class="el-button el-button--text el-button--small" style="color: #409EFF;" onclick="event.stopPropagation(); goToDetail('4')">查看详情</button>
+                                    <button class="el-button el-button--text el-button--small" style="color: #e6a23c;" onclick="event.stopPropagation(); goToRoles('4')">角色管理</button>
+                                    <button class="el-button el-button--text el-button--small" style="color: #67c23a;" onclick="event.stopPropagation(); goToMembers('4')">成员管理</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function goToDetail(id) {
+            window.location.href = 'workspace-detail.html?id=' + id;
+        }
+
+        function goToMembers(id) {
+            window.location.href = 'workspace-members.html?id=' + id;
+        }
+
+        function goToRoles(id) {
+            window.location.href = 'workspace-roles.html?id=' + id;
+        }
+
+        function showCreateModal() {
+            alert('创建空间弹窗');
+        }
+
+        var workspaceSwitcher = document.getElementById('workspaceSwitcher');
+        var dropdown = document.getElementById('workspaceSwitcher-dropdown');
+        if (workspaceSwitcher && dropdown) {
+            workspaceSwitcher.addEventListener('click', function() {
+                dropdown.classList.toggle('show');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!workspaceSwitcher.contains(e.target)) {
+                    dropdown.classList.remove('show');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

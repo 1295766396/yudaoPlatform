@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOM结构编辑器 - Ragentic Cube Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1890ff;
+            --primary-hover: #40a9ff;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --error-color: #f5222d;
+            --text-color: #303133;
+            --text-secondary: #606266;
+            --text-muted: #909399;
+            --border-color: #dcdfe6;
+            --border-light: #ebeef5;
+            --bg-color: #f5f7fa;
+            --bg-white: #ffffff;
+            --sidebar-bg: #304156;
+            --sidebar-text: #bfcbd9;
+            --sidebar-active: #1890ff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+            font-size: 14px;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+        }
+
+        .ruoyi-sidebar {
+            background: linear-gradient(180deg, #304156 0%, #1f2d3d 100%);
+            transition: width 0.3s;
+        }
+
+        .ruoyi-sidebar .menu-item {
+            color: var(--sidebar-text);
+            transition: all 0.3s;
+        }
+
+        .ruoyi-sidebar .menu-item:hover,
+        .ruoyi-sidebar .menu-item.active {
+            color: #ffffff;
+            background-color: var(--sidebar-active);
+        }
+
+        .ruoyi-tabs {
+            border-bottom: 2px solid var(--border-light);
+            background: #fff;
+        }
+
+        .ruoyi-tab {
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
+            color: var(--text-secondary);
+        }
+
+        .ruoyi-tab:hover {
+            color: var(--primary-color);
+        }
+
+        .ruoyi-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .ruoyi-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            color: var(--text-color);
+        }
+
+        .ruoyi-btn:hover {
+            color: var(--primary-color);
+            border-color: var(--primary-hover);
+        }
+
+        .ruoyi-btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .ruoyi-btn-primary:hover {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+            color: #fff;
+        }
+
+        .ruoyi-btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .ruoyi-btn-danger {
+            background-color: var(--error-color);
+            border-color: var(--error-color);
+            color: #fff;
+        }
+
+        .ruoyi-btn-danger:hover {
+            background-color: #ff4d4f;
+            border-color: #ff4d4f;
+        }
+
+        .ruoyi-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+            outline: none;
+        }
+
+        .ruoyi-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        .divider {
+            width: 4px;
+            background: var(--border-light);
+            cursor: col-resize;
+            transition: background 0.2s;
+        }
+
+        .divider:hover {
+            background: var(--primary-color);
+        }
+
+        .status-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .status-success {
+            background-color: #f6ffed;
+            border: 1px solid #b7eb8f;
+            color: #52c41a;
+        }
+
+        .status-warning {
+            background-color: #fffbe6;
+            border: 1px solid #ffe58f;
+            color: #faad14;
+        }
+
+        .status-error {
+            background-color: #fff2f0;
+            border: 1px solid #ffccc7;
+            color: #f5222d;
+        }
+
+        .status-info {
+            background-color: #e6f7ff;
+            border: 1px solid #91d5ff;
+            color: #1890ff;
+        }
+
+        .toolbar-separator {
+            width: 1px;
+            height: 24px;
+            background: var(--border-color);
+            margin: 0 8px;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* BOM树样式 */
+        .bom-tree-node {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .bom-tree-node:hover {
+            background-color: #e6f7ff;
+        }
+
+        .bom-tree-node.selected {
+            background-color: #bae7ff;
+        }
+
+        .bom-tree-content {
+            display: flex;
+            align-items: center;
+            padding: 6px 8px;
+            border-radius: 2px;
+        }
+
+        .bom-tree-expand-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .bom-tree-expand-icon.expanded {
+            transform: rotate(90deg);
+        }
+
+        .bom-tree-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* BOM表格样式 */
+        .bom-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .bom-table th {
+            background: #fafafa;
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 500;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-secondary);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .bom-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .bom-table tr:hover {
+            background: #f5f7fa;
+        }
+
+        .bom-table tr.editing {
+            background: #fffbe6;
+        }
+
+        /* 层级缩进指示线 */
+        .level-indicator {
+            display: inline-block;
+            width: 16px;
+            height: 1px;
+            background: transparent;
+        }
+
+        /* 属性面板 */
+        .property-label {
+            width: 120px;
+            background-color: #fafafa;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .property-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        /* BOM对比差异高亮 */
+        .diff-added {
+            background-color: #f6ffed !important;
+            border-left: 3px solid #52c41a;
+        }
+
+        .diff-removed {
+            background-color: #fff2f0 !important;
+            border-left: 3px solid #f5222d;
+        }
+
+        .diff-modified {
+            background-color: #fffbe6 !important;
+            border-left: 3px solid #faad14;
+        }
+
+        /* 拖拽放置样式 */
+        .drag-over {
+            background-color: #e6f7ff !important;
+            border: 2px dashed var(--primary-color);
+        }
+
+        .dragging {
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col">
+
+    <!-- 顶部导航栏 -->
+    <header class="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-4 shrink-0">
+        <div class="flex items-center">
+            <div class="flex items-center mr-8">
+                <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded flex items-center justify-center">
+                    <i class="fa fa-cube text-white text-lg"></i>
+                </div>
+                <span class="ml-2 font-semibold text-gray-800 text-lg">Ragentic Cube Suite</span>
+            </div>
+
+            <nav class="flex items-center space-x-1">
+                <a href="personal-workspace.html" class="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-t">首页</a>
+                <a href="#" class="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-t">项目管理</a>
+                <a href="#" class="px-4 py-2 text-blue-600 font-medium border-b-2 border-blue-600">BOM管理</a>
+                <a href="app-store.html" class="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-t">工具中心</a>
+                <a href="#" class="px-4 py-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-t">系统管理</a>
+            </nav>
+        </div>
+
+        <div class="flex items-center space-x-4">
+            <div class="relative">
+                <input type="text" placeholder="搜索BOM、零件..." class="ruoyi-input w-64 pl-10">
+                <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            </div>
+
+            <button class="relative p-2 text-gray-500 hover:text-blue-600 hover:bg-gray-100 rounded">
+                <i class="fa fa-bell-o text-lg"></i>
+                <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+
+            <div class="flex items-center cursor-pointer hover:bg-gray-100 rounded px-2 py-1">
+                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                    <span class="text-white text-sm font-medium">张</span>
+                </div>
+                <span class="ml-2 text-gray-700">张三</span>
+                <i class="fa fa-angle-down ml-1 text-gray-400"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主体区域 -->
+    <div class="flex flex-1 overflow-hidden">
+
+        <!-- 左侧导航菜单 -->
+        <aside class="ruoyi-sidebar w-56 shrink-0 overflow-y-auto">
+            <div class="py-2">
+                <div class="menu-item flex items-center px-4 py-3">
+                    <i class="fa fa-folder-open w-5 text-center mr-3"></i>
+                    <span>个人工作区</span>
+                </div>
+
+                <div class="menu-item active flex items-center px-4 py-3">
+                    <i class="fa fa-sitemap w-5 text-center mr-3"></i>
+                    <span>BOM管理</span>
+                    <i class="fa fa-angle-down ml-auto text-xs"></i>
+                </div>
+
+                <div class="pl-10">
+                    <div class="menu-item flex items-center px-4 py-2 bg-blue-600 bg-opacity-30">
+                        <span>BOM结构编辑器</span>
+                    </div>
+                    <div class="menu-item flex items-center px-4 py-2">
+                        <span>BOM版本对比</span>
+                    </div>
+                    <div class="menu-item flex items-center px-4 py-2">
+                        <span>BOM导入导出</span>
+                    </div>
+                </div>
+
+                <div class="menu-item flex items-center px-4 py-3">
+                    <i class="fa fa-cubes w-5 text-center mr-3"></i>
+                    <span>零件库</span>
+                </div>
+
+                <div class="menu-item flex items-center px-4 py-3">
+                    <i class="fa fa-file-text-o w-5 text-center mr-3"></i>
+                    <span>文档中心</span>
+                </div>
+
+                <div class="menu-item flex items-center px-4 py-3">
+                    <i class="fa fa-check-square-o w-5 text-center mr-3"></i>
+                    <span>PDQ质检</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 右侧主内容区 -->
+        <main class="flex-1 flex flex-col overflow-hidden bg-white">
+
+            <!-- BOM选择工具栏 -->
+            <div class="h-14 border-b border-gray-200 flex items-center px-4 shrink-0 bg-gray-50">
+                <div class="flex items-center space-x-3">
+                    <span class="text-gray-600">当前BOM：</span>
+                    <select class="ruoyi-input w-64">
+                        <option>总成_A.BOM - 版本 A.2</option>
+                        <option>总成_A.BOM - 版本 A.1</option>
+                        <option>总成_B.BOM - 版本 A.1</option>
+                        <option>部件_C.BOM - 版本 A.0</option>
+                    </select>
+                    <button class="ruoyi-btn ruoyi-btn-primary ruoyi-btn-sm">
+                        <i class="fa fa-history mr-1"></i>版本历史
+                    </button>
+                    <button class="ruoyi-btn ruoyi-btn-sm">
+                        <i class="fa fa-exchange mr-1"></i>版本对比
+                    </button>
+                </div>
+
+                <div class="flex-1"></div>
+
+                <div class="flex items-center space-x-2">
+                    <span class="status-tag status-success">已发布</span>
+                    <span class="text-gray-500 text-sm">最后修改：2026-05-14 15:30</span>
+                </div>
+            </div>
+
+            <!-- 功能工具栏 -->
+            <div class="h-11 border-b border-gray-200 flex items-center px-4 shrink-0 bg-white">
+                <!-- 文件操作 -->
+                <div class="flex items-center space-x-1">
+                    <button class="ruoyi-btn ruoyi-btn-primary ruoyi-btn-sm">
+                        <i class="fa fa-save mr-1"></i>保存
+                    </button>
+                    <button class="ruoyi-btn ruoyi-btn-sm">
+                        <i class="fa fa-undo mr-1"></i>撤销
+                    </button>
+                    <button class="ruoyi-btn ruoyi-btn-sm">
+                        <i class="fa fa-repeat mr-1"></i>重做
+                    </button>
+                    <div class="toolbar-separator"></div>
+                </div>
+
+                <!-- BOM操作 -->
+                <div class="flex items-center space-x-1">
+                    <button class="ruoyi-btn ruoyi-btn-sm">
+                        <i class="fa fa-plus mr-1"></i>添加零件
+                    </button>
+                    <button class="ruoyi-btn ruoyi-btn-sm">
+                        <i class="fa fa-plus-square mr-1"></i>添加子件
+                    </button>
+                    <button class="ruoyi-btn ruoyi-btn-danger ruoyi-btn-sm">
+                        <i class="fa fa-trash-o mr-1"></i>删除
+                    </button>
+                    <div class="toolbar-separator"></div>
+                    <button class="ruoyi-btn ruoyi-btn-sm">
+                        <i class="fa fa-indent mr-1"></i>升级
+                    </button>
+                    <button class="ruoyi-btn ruoyi-btn-sm">
+                        <i class="fa fa-outdent mr-1"></i>降级
+                    </button>
+                    <button class="ruoyi-btn ruoyi-btn-sm">
+                        <i class="fa fa-arrow-up mr-1"></i>上移
+                    </button>
+                    <button class="ruoyi-btn ruoyi-btn-sm">
+                        <i class="fa fa-arrow-down mr-1"></i>下移
+                    </button>
+                    <div class="toolbar-separator"></div>
+                </div>
+
+                <!-- 视图与编辑模式 -->
+                <div class="flex items-center space-x-1">
+                    <button class="ruoyi-btn ruoyi-btn-sm bg-gray-100">
+                        <i class="fa fa-th-list mr-1"></i>表格视图
+                    </button>
+                    <button class="ruoyi-btn ruoyi-btn-sm">
+                        <i class="fa fa-sitemap mr-1"></i>树形视图
+                    </button>
+                    <button class="ruoyi-btn ruoyi-btn-sm">
+                        <i class="fa fa-search-plus mr-1"></i>全部展开
+                    </button>
+                    <button class="ruoyi-btn ruoyi-btn-sm">
+                        <i class="fa fa-search-minus mr-1"></i>全部折叠
+                    </button>
+                    <div class="toolbar-separator"></div>
+                    <label class="flex items-center ruoyi-btn ruoyi-btn-sm">
+                        <input type="checkbox" class="mr-2" checked>编辑模式
+                    </label>
+                </div>
+
+                <div class="flex-1"></div>
+
+                <!-- 搜索与筛选 -->
+                <div class="flex items-center space-x-2">
+                    <input type="text" placeholder="搜索零件号/名称..." class="ruoyi-input w-48 text-sm">
+                    <select class="ruoyi-input w-32 text-sm">
+                        <option>全部类型</option>
+                        <option>自制件</option>
+                        <option>外购件</option>
+                        <option>标准件</option>
+                        <option>虚拟件</option>
+                    </select>
+                    <button class="ruoyi-btn ruoyi-btn-sm">
+                        <i class="fa fa-filter"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 三栏内容区 -->
+            <div class="flex flex-1 overflow-hidden">
+
+                <!-- 左侧：BOM预览树 -->
+                <div class="w-72 shrink-0 border-r border-gray-200 overflow-y-auto bg-white">
+                    <div class="p-3 border-b border-gray-200 bg-gray-50">
+                        <h3 class="font-medium text-gray-700 flex items-center">
+                            <i class="fa fa-sitemap text-blue-500 mr-2"></i>
+                            BOM结构预览
+                        </h3>
+                    </div>
+                    <div class="p-2">
+                        <div class="bom-tree">
+                            <!-- 根节点 -->
+                            <div class="bom-tree-node">
+                                <div class="bom-tree-content selected">
+                                    <span class="bom-tree-expand-icon expanded">
+                                        <i class="fa fa-caret-right text-xs text-gray-500"></i>
+                                    </span>
+                                    <span class="bom-tree-icon text-blue-500">
+                                        <i class="fa fa-cube"></i>
+                                    </span>
+                                    <span class="text-sm font-medium">总成_A</span>
+                                    <span class="ml-auto text-xs text-gray-400">A.2</span>
+                                </div>
+
+                                <!-- 第一层子件 -->
+                                <div class="ml-5">
+                                    <div class="bom-tree-node">
+                                        <div class="bom-tree-content">
+                                            <span class="bom-tree-expand-icon expanded">
+                                                <i class="fa fa-caret-right text-xs text-gray-500"></i>
+                                            </span>
+                                            <span class="bom-tree-icon text-green-500">
+                                                <i class="fa fa-cubes"></i>
+                                            </span>
+                                            <span class="text-sm">部件_A1</span>
+                                            <span class="ml-auto text-xs text-gray-400">×2</span>
+                                        </div>
+                                        <div class="ml-5">
+                                            <div class="bom-tree-node">
+                                                <div class="bom-tree-content">
+                                                    <span class="bom-tree-expand-icon"></span>
+                                                    <span class="bom-tree-icon text-orange-500">
+                                                        <i class="fa fa-cube"></i>
+                                                    </span>
+                                                    <span class="text-sm">零件_A11</span>
+                                                </div>
+                                            </div>
+                                            <div class="bom-tree-node">
+                                                <div class="bom-tree-content">
+                                                    <span class="bom-tree-expand-icon"></span>
+                                                    <span class="bom-tree-icon text-orange-500">
+                                                        <i class="fa fa-cube"></i>
+                                                    </span>
+                                                    <span class="text-sm">零件_A12</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bom-tree-node">
+                                        <div class="bom-tree-content">
+                                            <span class="bom-tree-expand-icon">
+                                                <i class="fa fa-caret-right text-xs text-gray-500"></i>
+                                            </span>
+                                            <span class="bom-tree-icon text-green-500">
+                                                <i class="fa fa-cubes"></i>
+                                            </span>
+                                            <span class="text-sm">部件_A2</span>
+                                            <span class="ml-auto text-xs text-gray-400">×1</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="bom-tree-node diff-added">
+                                        <div class="bom-tree-content">
+                                            <span class="bom-tree-expand-icon"></span>
+                                            <span class="bom-tree-icon text-purple-500">
+                                                <i class="fa fa-cube"></i>
+                                            </span>
+                                            <span class="text-sm">标准件_A3</span>
+                                            <span class="ml-auto text-xs text-green-600">新增</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="bom-tree-node diff-modified">
+                                        <div class="bom-tree-content">
+                                            <span class="bom-tree-expand-icon"></span>
+                                            <span class="bom-tree-icon text-orange-500">
+                                                <i class="fa fa-cube"></i>
+                                            </span>
+                                            <span class="text-sm">外购件_A4</span>
+                                            <span class="ml-auto text-xs text-yellow-600">修改</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BOM统计 -->
+                    <div class="p-3 border-t border-gray-200 bg-gray-50">
+                        <h4 class="text-sm font-medium text-gray-700 mb-2">BOM统计</h4>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">零件总数</span>
+                                <span class="font-medium">128</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">层级深度</span>
+                                <span class="font-medium">5 层</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">自制件</span>
+                                <span class="font-medium">45</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">外购件</span>
+                                <span class="font-medium">63</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">标准件</span>
+                                <span class="font-medium">20</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 中间分隔条 -->
+                <div class="divider"></div>
+
+                <!-- 中间：BOM编辑表格 -->
+                <div class="flex-1 flex flex-col overflow-hidden">
+                    <div class="p-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+                        <h3 class="font-medium text-gray-700 flex items-center">
+                            <i class="fa fa-table text-blue-500 mr-2"></i>
+                            BOM编辑表格
+                        </h3>
+                        <div class="flex items-center space-x-2">
+                            <span class="status-tag status-success mr-2">编辑模式</span>
+                            <span class="text-sm text-gray-500">共 45 行</span>
+                        </div>
+                    </div>
+
+                    <!-- BOM表格 -->
+                    <div class="flex-1 overflow-auto">
+                        <table class="bom-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40px;"></th>
+                                    <th style="width: 60px;">序号</th>
+                                    <th style="width: 150px;">零件号</th>
+                                    <th style="width: 150px;">零件名称</th>
+                                    <th style="width: 80px;">数量</th>
+                                    <th style="width: 80px;">单位</th>
+                                    <th style="width: 100px;">类型</th>
+                                    <th style="width: 80px;">版本</th>
+                                    <th style="width: 100px;">材料</th>
+                                    <th style="width: 80px;">是否关键</th>
+                                    <th style="width: 150px;">备注</th>
+                                    <th style="width: 100px;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- 层级 0 - 根节点 -->
+                                <tr class="editing">
+                                    <td>
+                                        <span class="bom-tree-expand-icon expanded inline-block">
+                                            <i class="fa fa-caret-right text-xs text-gray-500"></i>
+                                        </span>
+                                    </td>
+                                    <td class="font-medium">1</td>
+                                    <td class="font-medium">
+                                        <input type="text" class="ruoyi-input text-sm" value="ASSY-001">
+                                    </td>
+                                    <td class="font-medium">
+                                        <input type="text" class="ruoyi-input text-sm" value="总成_A">
+                                    </td>
+                                    <td>
+                                        <input type="number" class="ruoyi-input text-sm w-20" value="1">
+                                    </td>
+                                    <td>EA</td>
+                                    <td>
+                                        <select class="ruoyi-input text-sm">
+                                            <option>自制件</option>
+                                            <option>外购件</option>
+                                            <option>标准件</option>
+                                        </select>
+                                    </td>
+                                    <td><span class="status-tag status-info">A.2</span></td>
+                                    <td>-</td>
+                                    <td><span class="status-tag status-error">是</span></td>
+                                    <td><input type="text" class="ruoyi-input text-sm" placeholder="添加备注"></td>
+                                    <td>
+                                        <button class="text-blue-600 hover:text-blue-800 text-sm mr-2">编辑</button>
+                                        <button class="text-red-600 hover:text-red-800 text-sm">删除</button>
+                                    </td>
+                                </tr>
+
+                                <!-- 层级 1 -->
+                                <tr>
+                                    <td><span class="level-indicator"></span><i class="fa fa-caret-right text-xs text-gray-500"></i></td>
+                                    <td>1.1</td>
+                                    <td>SUB-001</td>
+                                    <td>部件_A1</td>
+                                    <td>2</td>
+                                    <td>EA</td>
+                                    <td><span class="status-tag status-info">自制件</span></td>
+                                    <td><span class="status-tag status-info">B.1</span></td>
+                                    <td>铝合金</td>
+                                    <td><span class="status-tag status-warning">否</span></td>
+                                    <td class="text-gray-500">传动部件</td>
+                                    <td>
+                                        <button class="text-blue-600 hover:text-blue-800 text-sm mr-2">编辑</button>
+                                        <button class="text-red-600 hover:text-red-800 text-sm">删除</button>
+                                    </td>
+                                </tr>
+
+                                <!-- 层级 2 -->
+                                <tr>
+                                    <td><span class="level-indicator"></span><span class="level-indicator"></span></td>
+                                    <td>1.1.1</td>
+                                    <td>PART-001</td>
+                                    <td>零件_A11</td>
+                                    <td>4</td>
+                                    <td>EA</td>
+                                    <td><span class="status-tag status-info">自制件</span></td>
+                                    <td><span class="status-tag status-success">A.0</span></td>
+                                    <td>45号钢</td>
+                                    <td><span class="status-tag status-warning">否</span></td>
+                                    <td class="text-gray-500">传动轴</td>
+                                    <td>
+                                        <button class="text-blue-600 hover:text-blue-800 text-sm mr-2">编辑</button>
+                                        <button class="text-red-600 hover:text-red-800 text-sm">删除</button>
+                                    </td>
+                                </tr>
+
+                                <tr class="diff-modified">
+                                    <td><span class="level-indicator"></span><span class="level-indicator"></span></td>
+                                    <td>1.1.2</td>
+                                    <td>PART-002</td>
+                                    <td>零件_A12</td>
+                                    <td>2</td>
+                                    <td>EA</td>
+                                    <td><span class="status-tag status-info">自制件</span></td>
+                                    <td><span class="status-tag status-success">A.1</span></td>
+                                    <td>不锈钢304</td>
+                                    <td><span class="status-tag status-warning">否</span></td>
+                                    <td class="text-gray-500">壳体</td>
+                                    <td>
+                                        <button class="text-blue-600 hover:text-blue-800 text-sm mr-2">编辑</button>
+                                        <button class="text-red-600 hover:text-red-800 text-sm">删除</button>
+                                    </td>
+                                </tr>
+
+                                <!-- 层级 1 -->
+                                <tr>
+                                    <td><span class="level-indicator"></span><i class="fa fa-caret-right text-xs text-gray-500"></i></td>
+                                    <td>1.2</td>
+                                    <td>SUB-002</td>
+                                    <td>部件_A2</td>
+                                    <td>1</td>
+                                    <td>EA</td>
+                                    <td><span class="status-tag status-info">自制件</span></td>
+                                    <td><span class="status-tag status-success">A.0</span></td>
+                                    <td>铸铝</td>
+                                    <td><span class="status-tag status-error">是</span></td>
+                                    <td class="text-gray-500">箱体组件</td>
+                                    <td>
+                                        <button class="text-blue-600 hover:text-blue-800 text-sm mr-2">编辑</button>
+                                        <button class="text-red-600 hover:text-red-800 text-sm">删除</button>
+                                    </td>
+                                </tr>
+
+                                <!-- 新增零件标记 -->
+                                <tr class="diff-added">
+                                    <td><span class="level-indicator"></span></td>
+                                    <td>1.3</td>
+                                    <td>STD-003</td>
+                                    <td>标准件_A3</td>
+                                    <td>8</td>
+                                    <td>EA</td>
+                                    <td><span class="status-tag status-success">标准件</span></td>
+                                    <td><span class="status-tag status-success">A.0</span></td>
+                                    <td>碳钢镀锌</td>
+                                    <td><span class="status-tag status-warning">否</span></td>
+                                    <td class="text-gray-500">螺栓M8×20</td>
+                                    <td>
+                                        <button class="text-blue-600 hover:text-blue-800 text-sm mr-2">编辑</button>
+                                        <button class="text-red-600 hover:text-red-800 text-sm">删除</button>
+                                    </td>
+                                </tr>
+
+                                <tr class="diff-modified">
+                                    <td><span class="level-indicator"></span></td>
+                                    <td>1.4</td>
+                                    <td>BUY-004</td>
+                                    <td>外购件_A4</td>
+                                    <td>4</td>
+                                    <td>EA</td>
+                                    <td><span class="status-tag status-warning">外购件</span></td>
+                                    <td><span class="status-tag status-success">C.2</span></td>
+                                    <td>成品</td>
+                                    <td><span class="status-tag status-error">是</span></td>
+                                    <td class="text-gray-500">电机组件</td>
+                                    <td>
+                                        <button class="text-blue-600 hover:text-blue-800 text-sm mr-2">编辑</button>
+                                        <button class="text-red-600 hover:text-red-800 text-sm">删除</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 底部分页 -->
+                    <div class="h-10 border-t border-gray-200 flex items-center justify-between px-4 bg-gray-50">
+                        <div class="text-sm text-gray-600">
+                            显示 1 - 20 条，共 45 条
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="ruoyi-btn ruoyi-btn-sm px-3">上一页</button>
+                            <button class="ruoyi-btn ruoyi-btn-primary ruoyi-btn-sm px-3">1</button>
+                            <button class="ruoyi-btn ruoyi-btn-sm px-3">2</button>
+                            <button class="ruoyi-btn ruoyi-btn-sm px-3">3</button>
+                            <button class="ruoyi-btn ruoyi-btn-sm px-3">下一页</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧分隔条 -->
+                <div class="divider"></div>
+
+                <!-- 右侧：零件属性面板 -->
+                <div class="w-80 shrink-0 border-l border-gray-200 flex flex-col overflow-hidden">
+                    <!-- Tab标签 -->
+                    <div class="ruoyi-tabs flex items-center px-2 shrink-0">
+                        <div class="ruoyi-tab active flex items-center text-sm px-3">
+                            <i class="fa fa-info-circle mr-2 text-blue-500"></i>
+                            属性详情
+                        </div>
+                        <div class="ruoyi-tab flex items-center text-sm px-3">
+                            <i class="fa fa-file-o mr-2 text-gray-400"></i>
+                            关联文件
+                        </div>
+                        <div class="ruoyi-tab flex items-center text-sm px-3">
+                            <i class="fa fa-history mr-2 text-gray-400"></i>
+                            变更历史
+                        </div>
+                    </div>
+
+                    <!-- 属性内容 -->
+                    <div class="flex-1 overflow-auto p-4">
+                        <!-- 零件头部信息 -->
+                        <div class="mb-6">
+                            <div class="flex items-start">
+                                <div class="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                                    <i class="fa fa-cube text-3xl text-blue-500"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-gray-800">总成_A</h3>
+                                    <p class="text-gray-500 text-sm">零件号：ASSY-001</p>
+                                    <div class="flex items-center mt-2">
+                                        <span class="status-tag status-info mr-2">版本 A.2</span>
+                                        <span class="status-tag status-success">已发布</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 基本属性 -->
+                        <div class="mb-6">
+                            <h4 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                                <i class="fa fa-list text-blue-500 mr-2"></i>
+                                基本属性
+                            </h4>
+                            <table class="w-full">
+                                <tbody>
+                                    <tr>
+                                        <td class="property-label py-2 px-3 text-sm">零件名称</td>
+                                        <td class="py-2 px-3 text-sm">总成_A</td>
+                                    </tr>
+                                    <tr class="bg-gray-50">
+                                        <td class="property-label py-2 px-3 text-sm">零件号</td>
+                                        <td class="py-2 px-3 text-sm font-mono">ASSY-001</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property-label py-2 px-3 text-sm">版本</td>
+                                        <td class="py-2 px-3 text-sm">A.2</td>
+                                    </tr>
+                                    <tr class="bg-gray-50">
+                                        <td class="property-label py-2 px-3 text-sm">零件类型</td>
+                                        <td class="py-2 px-3 text-sm">自制件</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property-label py-2 px-3 text-sm">数量</td>
+                                        <td class="py-2 px-3 text-sm">1</td>
+                                    </tr>
+                                    <tr class="bg-gray-50">
+                                        <td class="property-label py-2 px-3 text-sm">单位</td>
+                                        <td class="py-2 px-3 text-sm">EA</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property-label py-2 px-3 text-sm">是否关键件</td>
+                                        <td class="py-2 px-3"><span class="status-tag status-error">是</span></td>
+                                    </tr>
+                                    <tr class="bg-gray-50">
+                                        <td class="property-label py-2 px-3 text-sm">创建人</td>
+                                        <td class="py-2 px-3 text-sm">张三</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property-label py-2 px-3 text-sm">创建时间</td>
+                                        <td class="py-2 px-3 text-sm">2026-05-10 14:30</td>
+                                    </tr>
+                                    <tr class="bg-gray-50">
+                                        <td class="property-label py-2 px-3 text-sm">最后修改</td>
+                                        <td class="py-2 px-3 text-sm">2026-05-14 15:30</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 设计属性 -->
+                        <div class="mb-6">
+                            <h4 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                                <i class="fa fa-wrench text-green-500 mr-2"></i>
+                                设计属性
+                            </h4>
+                            <table class="w-full">
+                                <tbody>
+                                    <tr>
+                                        <td class="property-label py-2 px-3 text-sm">材料</td>
+                                        <td class="py-2 px-3 text-sm">-</td>
+                                    </tr>
+                                    <tr class="bg-gray-50">
+                                        <td class="property-label py-2 px-3 text-sm">重量</td>
+                                        <td class="py-2 px-3 text-sm">12.5 kg</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="property-label py-2 px-3 text-sm">表面处理</td>
+                                        <td class="py-2 px-3 text-sm">-</td>
+                                    </tr>
+                                    <tr class="bg-gray-50">
+                                        <td class="property-label py-2 px-3 text-sm">图纸代号</td>
+                                        <td class="py-2 px-3 text-sm">DWG-ASSY-001</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 备注 -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                                <i class="fa fa-pencil text-purple-500 mr-2"></i>
+                                备注说明
+                            </h4>
+                            <textarea class="ruoyi-input w-full h-24 resize-none text-sm" placeholder="添加备注说明..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 底部操作按钮 -->
+                    <div class="p-4 border-t border-gray-200 bg-gray-50">
+                        <div class="flex space-x-2">
+                            <button class="ruoyi-btn ruoyi-btn-primary flex-1">
+                                <i class="fa fa-save mr-1"></i>保存修改
+                            </button>
+                            <button class="ruoyi-btn flex-1">
+                                <i class="fa fa-refresh mr-1"></i>重置
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Tab切换
+        document.querySelectorAll('.ruoyi-tab').forEach((tab, index) => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.ruoyi-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+
+                document.querySelectorAll('.ruoyi-tab i').forEach(i => {
+                    i.classList.remove('text-blue-500');
+                    i.classList.add('text-gray-400');
+                });
+                this.querySelector('i').classList.remove('text-gray-400');
+                this.querySelector('i').classList.add('text-blue-500');
+            });
+        });
+
+        // 树形节点展开/折叠
+        document.querySelectorAll('.bom-tree-expand-icon').forEach(icon => {
+            icon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const parentNode = this.closest('.bom-tree-node');
+                const childContainer = parentNode.querySelector(':scope > div.ml-5');
+
+                if (childContainer) {
+                    childContainer.classList.toggle('hidden');
+                    this.classList.toggle('expanded');
+                }
+            });
+        });
+
+        // 树形节点选择
+        document.querySelectorAll('.bom-tree-content').forEach(node => {
+            node.addEventListener('click', function(e) {
+                if (e.target.closest('.bom-tree-expand-icon')) return;
+
+                document.querySelectorAll('.bom-tree-content').forEach(n => {
+                    n.classList.remove('selected');
+                });
+                this.classList.add('selected');
+            });
+        });
+
+        // 分隔线拖拽
+        function setupDivider(divider, leftPanel) {
+            let isDragging = false;
+
+            divider.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                document.body.style.cursor = 'col-resize';
+                document.body.style.userSelect = 'none';
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (!isDragging) return;
+
+                const containerRect = divider.parentElement.getBoundingClientRect();
+                const newWidth = e.clientX - containerRect.left;
+
+                if (newWidth > 200 && newWidth < 500) {
+                    leftPanel.style.width = newWidth + 'px';
+                }
+            });
+
+            document.addEventListener('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    document.body.style.cursor = '';
+                    document.body.style.userSelect = '';
+                }
+            });
+        }
+
+        const dividers = document.querySelectorAll('.divider');
+        const leftPanels = [document.querySelector('.w-72'), document.querySelector('.flex-1')];
+
+        if (dividers[0]) setupDivider(dividers[0], leftPanels[0]);
+        if (dividers[1]) setupDivider(dividers[1], leftPanels[1]);
+    </script>
+</body>
+</html>
