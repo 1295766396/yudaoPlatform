@@ -15,16 +15,18 @@
 
         <!-- 搜索筛选栏 -->
         <div class="search-bar">
-          <el-input v-model="searchQuery" placeholder="请输入空间名称搜索" style="width: 250px;" clearable />
-          <el-select v-model="permissionLevelFilter" placeholder="权限级别" clearable style="width: 150px;">
-            <el-option label="Public" value="PUBLIC" />
-            <el-option label="Protected" value="PROTECTED" />
-            <el-option label="Private" value="PRIVATE" />
+          <el-input v-model="searchQuery" placeholder="请输入空间名称搜索" style="width: 250px;" clearable @keyup.enter="handleSearch" />
+          <el-select v-model="permissionLevelFilter" placeholder="权限级别" clearable style="width: 150px;" @change="handleSearch">
+            <el-option label="全部" value="all" />
+            <el-option label="公共" value="PUBLIC" />
+            <el-option label="保护" value="PROTECTED" />
+            <el-option label="私有" value="PRIVATE" />
           </el-select>
-          <el-select v-model="statusFilter" placeholder="状态" clearable style="width: 150px;">
-            <el-option label="Active" value="ACTIVE" />
-            <el-option label="Inactive" value="INACTIVE" />
-            <el-option label="Archived" value="ARCHIVED" />
+          <el-select v-model="statusFilter" placeholder="状态" clearable style="width: 150px;" @change="handleSearch">
+            <el-option label="全部" value="all" />
+            <el-option label="活跃" value="ACTIVE" />
+            <el-option label="未激活" value="INACTIVE" />
+            <el-option label="已归档" value="ARCHIVED" />
           </el-select>
           <el-button type="primary" @click="handleSearch">搜索</el-button>
           <el-button @click="handleReset">重置</el-button>
@@ -59,33 +61,24 @@
               </div>
             </div>
             <div class="workspace-name">{{ workspace.workspaceName }}</div>
-            <div class="workspace-desc">--</div>
+            <div class="workspace-desc">{{ workspace.description }}</div>
             <div class="workspace-meta">
               <span class="meta-item">
                 <el-icon><User /></el-icon>
-                -- 成员
+                {{ workspace.memberCount }} 成员
               </span>
               <span class="meta-item">
                 <el-icon><Folder /></el-icon>
-                -- 项目
+                {{ workspace.projectCount }} 项目
               </span>
             </div>
             <div class="workspace-footer">
-              <span class="workspace-creator">-- · {{ formatTime(workspace.createTime) }}</span>
+              <span class="workspace-creator">{{ formatTime(workspace.createTime) }}</span>
               <div class="workspace-actions">
                 <el-button link type="primary" size="small" @click.stop="goToDetail(workspace)">查看详情</el-button>
                 <el-button link type="warning" size="small" @click.stop="goToRoles(workspace)">角色管理</el-button>
                 <el-button link type="success" size="small" @click.stop="goToMembers(workspace)">成员管理</el-button>
-                <el-dropdown v-if="workspace.status === 'ACTIVE'" trigger="click" @command="handleWorkspaceAction($event, workspace)">
-                  <el-button link size="small">更多<el-icon class="el-icon--right"><ArrowDown /></el-icon></el-button>
-                  <template #dropdown>
-                    <el-dropdown-menu>
-                      <el-dropdown-item command="archive">归档</el-dropdown-item>
-                      <el-dropdown-item command="delete" divided>删除</el-dropdown-item>
-                    </el-dropdown-menu>
-                  </template>
-                </el-dropdown>
-                <el-button v-else-if="workspace.status === 'ARCHIVED'" link type="info" size="small" @click.stop="handleActivateWorkspace(workspace)">激活</el-button>
+                
               </div>
             </div>
           </div>
@@ -584,8 +577,8 @@ const roleViewTab = ref('comparison')
 
 // 搜索和筛选状态
 const searchQuery = ref('')
-const permissionLevelFilter = ref<PermissionLevel | ''>('')
-const statusFilter = ref<WorkspaceStatus | ''>('')
+const permissionLevelFilter = ref<PermissionLevel | 'all'>('all')
+const statusFilter = ref<WorkspaceStatus | 'all'>('all')
 
 // 当前视图状态
 const viewMode = ref<'list' | 'detail' | 'roles' | 'members'>('list')
@@ -631,8 +624,8 @@ const fetchWorkspaces = async () => {
       pageNo: 1,
       pageSize: 100,
       workspaceName: searchQuery.value || undefined,
-      permissionLevel: permissionLevelFilter.value || undefined,
-      status: statusFilter.value || undefined,
+      permissionLevel: permissionLevelFilter.value === 'all' ? undefined : permissionLevelFilter.value,
+      status: statusFilter.value === 'all' ? undefined : statusFilter.value,
     }
     const res = await getWorkspacePage(params)
     console.log('res', res)
@@ -811,8 +804,8 @@ const handleSearch = () => {
 
 const handleReset = () => {
   searchQuery.value = ''
-  permissionLevelFilter.value = ''
-  statusFilter.value = ''
+  permissionLevelFilter.value = 'all'
+  statusFilter.value = 'all'
   fetchWorkspaces()
 }
 
@@ -1145,17 +1138,22 @@ onMounted(() => {
   align-items: center;
   padding-top: 15px;
   border-top: 1px solid #ebeef5;
+  gap: 10px;
 }
 
 .workspace-creator {
   font-size: 13px;
   color: #909399;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .workspace-actions {
   display: flex;
   gap: 4px;
   align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 /* 详情视图样式 */
