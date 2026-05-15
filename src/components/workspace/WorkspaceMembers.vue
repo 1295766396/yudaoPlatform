@@ -30,18 +30,6 @@
 
       <!-- 成员表格 -->
       <el-table :data="members" style="width: 100%;" class="members-table">
-        <el-table-column width="50">
-          <template #header>
-            <el-checkbox v-model="selectAll" @change="handleSelectAll" />
-          </template>
-          <template #default="{ row }">
-            <el-checkbox 
-              v-model="selectedMembers" 
-              :value="row.uid" 
-              :disabled="isOwner(row)"
-            />
-          </template>
-        </el-table-column>
         <el-table-column label="成员">
           <template #default="{ row }">
             <div class="member-cell">
@@ -100,29 +88,6 @@
         </el-table-column>
       </el-table>
 
-      <!-- 批量操作 -->
-      <div class="batch-actions">
-        <div class="batch-actions-left">
-          <span style="font-size: 14px; color: #606266;">已选择 {{ selectedMembers.length }} 项</span>
-        </div>
-        <div class="batch-actions-right">
-          <el-select v-model="batchRole" placeholder="选择新角色" style="width: 150px;" size="small">
-            <el-option 
-              v-for="role in roles" 
-              :key="role.code" 
-              :label="role.name" 
-              :value="role.code" 
-            />
-          </el-select>
-          <el-button type="primary" size="small" :disabled="!batchRole || selectedMembers.length === 0" @click="handleBatchChangeRole">
-            批量更改角色
-          </el-button>
-          <el-button type="danger" size="small" :disabled="selectedMembers.length === 0" @click="handleBatchRemove">
-            批量移除
-          </el-button>
-        </div>
-      </div>
-
       <div v-if="loading" class="loading-container">
         <el-skeleton :count="3" animated />
       </div>
@@ -156,14 +121,7 @@ const emit = defineEmits<{
   (e: 'add-member'): void
   (e: 'remove-member', member: PageWorkspaceMember): void
   (e: 'change-role', member: PageWorkspaceMember): void
-  (e: 'batch-change-role', memberIds: (number | string)[], roleCode: string): void
-  (e: 'batch-remove', memberIds: (number | string)[]): void
 }>()
-
-// 选择相关
-const selectAll = ref(false)
-const selectedMembers = ref<(number | string)[]>([])
-const batchRole = ref('')
 
 // 角色统计
 const roleStats = computed(() => {
@@ -252,39 +210,9 @@ const formatLastAccess = (time?: string) => {
   return formatTime(time)
 }
 
-// 全选/取消全选
-const handleSelectAll = (value: boolean) => {
-  if (value) {
-    selectedMembers.value = props.members
-      .filter(m => !isOwner(m))
-      .map(m => m.uid)
-  } else {
-    selectedMembers.value = []
-  }
-}
-
 // 编辑角色
 const handleEditRole = (member: PageWorkspaceMember) => {
   emit('change-role', member)
-}
-
-// 批量更改角色
-const handleBatchChangeRole = () => {
-  if (selectedMembers.value.length > 0 && batchRole.value) {
-    emit('batch-change-role', selectedMembers.value, batchRole.value)
-    selectedMembers.value = []
-    selectAll.value = false
-    batchRole.value = ''
-  }
-}
-
-// 批量移除
-const handleBatchRemove = () => {
-  if (selectedMembers.value.length > 0) {
-    emit('batch-remove', selectedMembers.value)
-    selectedMembers.value = []
-    selectAll.value = false
-  }
 }
 </script>
 
@@ -491,26 +419,6 @@ const handleBatchRemove = () => {
     padding: 2px 8px;
     border-radius: 10px;
     display: inline-block;
-  }
-
-  .batch-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid #ebeef5;
-  }
-
-  .batch-actions-left {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .batch-actions-right {
-    flex: 1;
-    display: flex;
-    gap: 10px;
   }
 
   .loading-container,
