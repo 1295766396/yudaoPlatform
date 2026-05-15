@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>角色管理 - RuoYi</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .ruoyi-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .ruoyi-sidebar {
+            width: 210px;
+            background: #304156;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .ruoyi-sidebar-header {
+            height: 50px;
+            line-height: 50px;
+            text-align: center;
+            background: #263445;
+            font-size: 18px;
+            font-weight: 600;
+            border-bottom: 1px solid #1f2d3d;
+        }
+
+        .ruoyi-sidebar-header span:first-child {
+            color: #409EFF;
+        }
+
+        .ruoyi-sidebar-header span:last-child {
+            color: #909399;
+            font-size: 14px;
+            margin-left: 5px;
+        }
+
+        .ruoyi-menu {
+            padding: 10px 0;
+        }
+
+        .ruoyi-menu-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ruoyi-menu-item:hover {
+            background: #263445;
+        }
+
+        .ruoyi-menu-item.active {
+            background: #409EFF;
+        }
+
+        .ruoyi-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ruoyi-header {
+            height: 50px;
+            background: #fff;
+            box-shadow: 0 1px 4px rgba(0, 21, 41, .08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+
+        .ruoyi-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #606266;
+            font-size: 14px;
+        }
+
+        .ruoyi-breadcrumb .back-btn {
+            cursor: pointer;
+            color: #409EFF;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .ruoyi-breadcrumb .back-btn:hover {
+            text-decoration: underline;
+        }
+
+        .ruoyi-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .ruoyi-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #409EFF;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .ruoyi-content {
+            flex: 1;
+            padding: 20px;
+            overflow: auto;
+        }
+
+        .ruoyi-card {
+            background: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .ruoyi-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .ruoyi-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ruoyi-card-title .workspace-name {
+            color: #409EFF;
+        }
+
+        .role-card {
+            border: 1px solid #ebeef5;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .role-card.system {
+            border-left: 4px solid #e6a23c;
+        }
+
+        .role-card.custom {
+            border-left: 4px solid #409EFF;
+        }
+
+        .role-card:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .role-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .role-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .role-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .role-icon.owner {
+            background: linear-gradient(135deg, #f56c6c 0%, #c45656 100%);
+        }
+
+        .role-icon.admin {
+            background: linear-gradient(135deg, #409EFF 0%, #337ecc 100%);
+        }
+
+        .role-icon.leader {
+            background: linear-gradient(135deg, #e6a23c 0%, #b88230 100%);
+        }
+
+        .role-icon.author {
+            background: linear-gradient(135deg, #67c23a 0%, #529b2e 100%);
+        }
+
+        .role-icon.contributor {
+            background: linear-gradient(135deg, #1890ff 0%, #0d7acc 100%);
+        }
+
+        .role-icon.reader {
+            background: linear-gradient(135deg, #909399 0%, #6a6d72 100%);
+        }
+
+        .role-icon.public {
+            background: linear-gradient(135deg, #9254de 0%, #7647b3 100%);
+        }
+
+        .role-name-area {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .role-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #303133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .role-tag {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .role-tag.system {
+            background: #fdf6ec;
+            color: #e6a23c;
+        }
+
+        .role-tag.custom {
+            background: #ecf5ff;
+            color: #409EFF;
+        }
+
+        .role-desc {
+            font-size: 13px;
+            color: #909399;
+        }
+
+        .role-member-count {
+            font-size: 14px;
+            color: #606266;
+        }
+
+        .permission-section {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ebeef5;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #303133;
+            margin-bottom: 10px;
+        }
+
+        .permission-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 8px;
+        }
+
+        .permission-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #f5f7fa;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #606266;
+        }
+
+        .permission-item.enabled {
+            background: #ecf5ff;
+            color: #409EFF;
+        }
+
+        .permission-item.disabled {
+            opacity: 0.5;
+        }
+
+        .role-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ebeef5;
+        }
+
+        .role-hierarchy {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #ecf5ff 0%, #f5f7fa 100%);
+            border-radius: 8px;
+        }
+
+        .hierarchy-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #fff;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #606266;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .hierarchy-arrow {
+            color: #909399;
+            font-size: 14px;
+        }
+
+        .inheritance-note {
+            font-size: 12px;
+            color: #909399;
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="ruoyi-layout">
+        <!-- 左侧侧边栏 -->
+        <aside class="ruoyi-sidebar">
+            <div class="ruoyi-sidebar-header">
+                <span>RuoYi</span>
+                <span>供应商协同</span>
+            </div>
+            <nav class="ruoyi-menu">
+                <div class="ruoyi-menu-item">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    首页
+                </div>
+                <div class="ruoyi-menu-item active">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    协同空间
+                </div>
+                <div class="ruoyi-menu-item">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    我的工作
+                </div>
+                <div class="ruoyi-menu-item">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    产品结构
+                </div>
+                <div class="ruoyi-menu-item">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                        <path d="M2 17l10 5 10-5"></path>
+                        <path d="M2 12l10 5 10-5"></path>
+                    </svg>
+                    应用商店
+                </div>
+                <div class="ruoyi-menu-item">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1 1 0 0 0-1.51 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-3.09a1 1 0 0 0-1.51-1.51 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 .33-1.82 1 1 0 0 0-1.51-1.51H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h3.09a1 1 0 0 0 1.51-1.51 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33 1 1 0 0 0 1.51-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v3.09a1 1 0 0 0 1.51 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82 1 1 0 0 0 1.51 1.51H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-3.09a1 1 0 0 0-1.51 1.51z"></path>
+                    </svg>
+                    系统管理
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="ruoyi-main">
+            <!-- 顶部导航 -->
+            <header class="ruoyi-header">
+                <div class="ruoyi-breadcrumb">
+                    <span class="back-btn" onclick="goBack()">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                        返回
+                    </span>
+                    <span>/</span>
+                    <span>协同空间</span>
+                    <span>/</span>
+                    <span class="workspace-name">默认工作空间 - 角色管理</span>
+                </div>
+                <div class="ruoyi-user">
+                    <div class="ruoyi-avatar">管</div>
+                    <span>管理员</span>
+                </div>
+            </header>
+
+            <!-- 内容区 -->
+            <div class="ruoyi-content">
+                <div class="ruoyi-card">
+                    <div class="ruoyi-card-header">
+                        <div class="ruoyi-card-title">空间角色体系</div>
+                        <button class="el-button el-button--primary" onclick="showCreateRoleModal()">
+                            <span>+ 创建自定义角色</span>
+                        </button>
+                    </div>
+
+                    <!-- 角色层级说明 -->
+                    <div class="role-hierarchy">
+                        <div class="hierarchy-item" style="background: #fef0f0; color: #f56c6c; border: 1px solid #fef0f0;">
+                            Owner
+                        </div>
+                        <span class="hierarchy-arrow">→</span>
+                        <div class="hierarchy-item" style="background: #ecf5ff; color: #409EFF; border: 1px solid #ecf5ff;">
+                            Admin
+                        </div>
+                        <span class="hierarchy-arrow">→</span>
+                        <div class="hierarchy-item" style="background: #fdf6ec; color: #e6a23c; border: 1px solid #fdf6ec;">
+                            Leader
+                        </div>
+                        <span class="hierarchy-arrow">→</span>
+                        <div class="hierarchy-item" style="background: #f0f9eb; color: #67c23a; border: 1px solid #f0f9eb;">
+                            Author
+                        </div>
+                        <span class="hierarchy-arrow">→</span>
+                        <div class="hierarchy-item" style="background: #e6f7ff; color: #1890ff; border: 1px solid #e6f7ff;">
+                            Contributor
+                        </div>
+                        <span class="hierarchy-arrow">→</span>
+                        <div class="hierarchy-item" style="background: #f4f4f5; color: #909399; border: 1px solid #f4f4f5;">
+                            Reader
+                        </div>
+                        <span class="hierarchy-arrow">→</span>
+                        <div class="hierarchy-item" style="background: #f9f0ff; color: #9254de; border: 1px solid #f9f0ff;">
+                            Public Reader
+                        </div>
+                        <span class="inheritance-note">权限逐级继承，高等级角色自动拥有低等级角色的所有权限</span>
+                    </div>
+
+                    <!-- Owner 角色 -->
+                    <div class="role-card system">
+                        <div class="role-header">
+                            <div class="role-info">
+                                <div class="role-icon owner">O</div>
+                                <div class="role-name-area">
+                                    <div class="role-name">
+                                        所有者 (Owner)
+                                        <span class="role-tag system">系统内置</span>
+                                    </div>
+                                    <div class="role-desc">空间最高权限，拥有所有操作权限，可删除空间和转移所有权</div>
+                                </div>
+                            </div>
+                            <div class="role-member-count">1 名成员</div>
+                        </div>
+                        
+                        <div class="permission-section">
+                            <div class="section-title">核心权限</div>
+                            <div class="permission-grid">
+                                <div class="permission-item enabled">✓ 删除空间</div>
+                                <div class="permission-item enabled">✓ 转移所有权</div>
+                                <div class="permission-item enabled">✓ 管理成员</div>
+                                <div class="permission-item enabled">✓ 管理角色权限</div>
+                                <div class="permission-item enabled">✓ 编辑空间设置</div>
+                                <div class="permission-item enabled">✓ 查看操作日志</div>
+                                <div class="permission-item enabled">✓ 管理所有内容</div>
+                                <div class="permission-item enabled">✓ 管理公共文件夹</div>
+                                <div class="permission-item enabled">✓ 创建正式业务对象</div>
+                                <div class="permission-item enabled">✓ 创建评审/批注</div>
+                                <div class="permission-item enabled">✓ 查看所有内容</div>
+                                <div class="permission-item enabled">✓ 仅查看公开内容</div>
+                            </div>
+                        </div>
+
+                        <div class="role-actions">
+                            <button class="el-button el-button--primary el-button--small">编辑权限</button>
+                            <button class="el-button el-button--text el-button--small" style="color: #909399;">系统内置角色不可删除</button>
+                        </div>
+                    </div>
+
+                    <!-- Admin 角色 -->
+                    <div class="role-card system">
+                        <div class="role-header">
+                            <div class="role-info">
+                                <div class="role-icon admin">A</div>
+                                <div class="role-name-area">
+                                    <div class="role-name">
+                                        管理员 (Admin)
+                                        <span class="role-tag system">系统内置</span>
+                                    </div>
+                                    <div class="role-desc">空间管理员，可管理成员、分配角色、配置空间设置</div>
+                                </div>
+                            </div>
+                            <div class="role-member-count">2 名成员</div>
+                        </div>
+                        
+                        <div class="permission-section">
+                            <div class="section-title">核心权限</div>
+                            <div class="permission-grid">
+                                <div class="permission-item disabled">✗ 删除空间</div>
+                                <div class="permission-item disabled">✗ 转移所有权</div>
+                                <div class="permission-item enabled">✓ 管理成员</div>
+                                <div class="permission-item enabled">✓ 分配角色</div>
+                                <div class="permission-item enabled">✓ 编辑空间设置</div>
+                                <div class="permission-item enabled">✓ 查看操作日志</div>
+                                <div class="permission-item enabled">✓ 管理所有内容</div>
+                                <div class="permission-item enabled">✓ 管理公共文件夹</div>
+                                <div class="permission-item enabled">✓ 创建正式业务对象</div>
+                                <div class="permission-item enabled">✓ 创建评审/批注</div>
+                                <div class="permission-item enabled">✓ 查看所有内容</div>
+                                <div class="permission-item enabled">✓ 仅查看公开内容</div>
+                            </div>
+                        </div>
+
+                        <div class="role-actions">
+                            <button class="el-button el-button--primary el-button--small">编辑权限</button>
+                            <button class="el-button el-button--text el-button--small" style="color: #909399;">系统内置角色不可删除</button>
+                        </div>
+                    </div>
+
+                    <!-- Leader 角色 -->
+                    <div class="role-card system">
+                        <div class="role-header">
+                            <div class="role-info">
+                                <div class="role-icon leader">L</div>
+                                <div class="role-name-area">
+                                    <div class="role-name">
+                                        领导者 (Leader)
+                                        <span class="role-tag system">系统内置</span>
+                                    </div>
+                                    <div class="role-desc">团队领导者，可管理公共资源和创建正式业务对象</div>
+                                </div>
+                            </div>
+                            <div class="role-member-count">3 名成员</div>
+                        </div>
+                        
+                        <div class="permission-section">
+                            <div class="section-title">核心权限</div>
+                            <div class="permission-grid">
+                                <div class="permission-item disabled">✗ 删除空间</div>
+                                <div class="permission-item disabled">✗ 转移所有权</div>
+                                <div class="permission-item disabled">✗ 管理成员</div>
+                                <div class="permission-item disabled">✗ 管理角色权限</div>
+                                <div class="permission-item disabled">✗ 编辑空间设置</div>
+                                <div class="permission-item disabled">✗ 查看操作日志</div>
+                                <div class="permission-item enabled">✓ 管理所有内容</div>
+                                <div class="permission-item enabled">✓ 管理公共文件夹</div>
+                                <div class="permission-item enabled">✓ 创建正式业务对象</div>
+                                <div class="permission-item enabled">✓ 创建评审/批注</div>
+                                <div class="permission-item enabled">✓ 查看所有内容</div>
+                                <div class="permission-item enabled">✓ 仅查看公开内容</div>
+                            </div>
+                        </div>
+
+                        <div class="role-actions">
+                            <button class="el-button el-button--primary el-button--small">编辑权限</button>
+                            <button class="el-button el-button--text el-button--small" style="color: #909399;">系统内置角色不可删除</button>
+                        </div>
+                    </div>
+
+                    <!-- Author 角色 -->
+                    <div class="role-card system">
+                        <div class="role-header">
+                            <div class="role-info">
+                                <div class="role-icon author">A</div>
+                                <div class="role-name-area">
+                                    <div class="role-name">
+                                        作者 (Author)
+                                        <span class="role-tag system">系统内置</span>
+                                    </div>
+                                    <div class="role-desc">内容创作者，可创建正式业务对象，管理自己创建的内容</div>
+                                </div>
+                            </div>
+                            <div class="role-member-count">5 名成员</div>
+                        </div>
+                        
+                        <div class="permission-section">
+                            <div class="section-title">核心权限</div>
+                            <div class="permission-grid">
+                                <div class="permission-item disabled">✗ 删除空间</div>
+                                <div class="permission-item disabled">✗ 管理成员</div>
+                                <div class="permission-item disabled">✗ 管理公共文件夹</div>
+                                <div class="permission-item enabled">✓ 创建正式业务对象</div>
+                                <div class="permission-item enabled">✓ 编辑自己创建的内容</div>
+                                <div class="permission-item enabled">✓ 删除自己创建的内容</div>
+                                <div class="permission-item enabled">✓ 创建评审/批注</div>
+                                <div class="permission-item enabled">✓ 查看所有内容</div>
+                                <div class="permission-item enabled">✓ 仅查看公开内容</div>
+                            </div>
+                        </div>
+
+                        <div class="role-actions">
+                            <button class="el-button el-button--primary el-button--small">编辑权限</button>
+                            <button class="el-button el-button--text el-button--small" style="color: #909399;">系统内置角色不可删除</button>
+                        </div>
+                    </div>
+
+                    <!-- Contributor 角色 -->
+                    <div class="role-card system">
+                        <div class="role-header">
+                            <div class="role-info">
+                                <div class="role-icon contributor">C</div>
+                                <div class="role-name-area">
+                                    <div class="role-name">
+                                        贡献者 (Contributor)
+                                        <span class="role-tag system">系统内置</span>
+                                    </div>
+                                    <div class="role-desc">内容贡献者，可创建评审、评论、批注等非正式内容</div>
+                                </div>
+                            </div>
+                            <div class="role-member-count">4 名成员</div>
+                        </div>
+                        
+                        <div class="permission-section">
+                            <div class="section-title">核心权限</div>
+                            <div class="permission-grid">
+                                <div class="permission-item disabled">✗ 删除空间</div>
+                                <div class="permission-item disabled">✗ 管理成员</div>
+                                <div class="permission-item disabled">✗ 创建正式业务对象</div>
+                                <div class="permission-item disabled">✗ 编辑内容</div>
+                                <div class="permission-item enabled">✓ 创建评审/评论</div>
+                                <div class="permission-item enabled">✓ 创建批注/标记</div>
+                                <div class="permission-item enabled">✓ 查看所有内容</div>
+                                <div class="permission-item enabled">✓ 仅查看公开内容</div>
+                            </div>
+                        </div>
+
+                        <div class="role-actions">
+                            <button class="el-button el-button--primary el-button--small">编辑权限</button>
+                            <button class="el-button el-button--text el-button--small" style="color: #909399;">系统内置角色不可删除</button>
+                        </div>
+                    </div>
+
+                    <!-- Reader 角色 -->
+                    <div class="role-card system">
+                        <div class="role-header">
+                            <div class="role-info">
+                                <div class="role-icon reader">R</div>
+                                <div class="role-name-area">
+                                    <div class="role-name">
+                                        读者 (Reader)
+                                        <span class="role-tag system">系统内置</span>
+                                    </div>
+                                    <div class="role-desc">普通读者，可查看空间内所有内容，可创建个人收藏夹</div>
+                                </div>
+                            </div>
+                            <div class="role-member-count">6 名成员</div>
+                        </div>
+                        
+                        <div class="permission-section">
+                            <div class="section-title">核心权限</div>
+                            <div class="permission-grid">
+                                <div class="permission-item disabled">✗ 删除空间</div>
+                                <div class="permission-item disabled">✗ 管理成员</div>
+                                <div class="permission-item disabled">✗ 创建正式业务对象</div>
+                                <div class="permission-item disabled">✗ 创建评审/批注</div>
+                                <div class="permission-item enabled">✓ 查看所有内容</div>
+                                <div class="permission-item enabled">✓ 创建个人收藏夹</div>
+                                <div class="permission-item enabled">✓ 管理个人文件夹</div>
+                            </div>
+                        </div>
+
+                        <div class="role-actions">
+                            <button class="el-button el-button--primary el-button--small">编辑权限</button>
+                            <button class="el-button el-button--text el-button--small" style="color: #909399;">系统内置角色不可删除</button>
+                        </div>
+                    </div>
+
+                    <!-- Public Reader 角色 -->
+                    <div class="role-card system">
+                        <div class="role-header">
+                            <div class="role-info">
+                                <div class="role-icon public">P</div>
+                                <div class="role-name-area">
+                                    <div class="role-name">
+                                        公共读者 (Public Reader)
+                                        <span class="role-tag system">系统内置</span>
+                                    </div>
+                                    <div class="role-desc">公共读者，仅可查看空间内标记为公开的内容，无其他操作权限</div>
+                                </div>
+                            </div>
+                            <div class="role-member-count">2 名成员</div>
+                        </div>
+                        
+                        <div class="permission-section">
+                            <div class="section-title">核心权限</div>
+                            <div class="permission-grid">
+                                <div class="permission-item disabled">✗ 删除空间</div>
+                                <div class="permission-item disabled">✗ 管理成员</div>
+                                <div class="permission-item disabled">✗ 创建正式业务对象</div>
+                                <div class="permission-item disabled">✗ 创建评审/批注</div>
+                                <div class="permission-item disabled">✗ 查看私有内容</div>
+                                <div class="permission-item enabled">✓ 仅查看公开内容</div>
+                            </div>
+                        </div>
+
+                        <div class="role-actions">
+                            <button class="el-button el-button--primary el-button--small">编辑权限</button>
+                            <button class="el-button el-button--text el-button--small" style="color: #909399;">系统内置角色不可删除</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function goBack() {
+            window.location.href = 'workspace-detail.html';
+        }
+
+        function showCreateRoleModal() {
+            alert('创建自定义角色弹窗');
+        }
+    </script>
+</body>
+</html>

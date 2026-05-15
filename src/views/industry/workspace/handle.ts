@@ -428,6 +428,42 @@ export function getPermissionTableData(roles?: PageWorkspaceRoleConfig[]): Permi
 // ========== 角色数据转换函数 ==========
 
 /**
+ * 将角色配置转换为 WorkspaceRoles 组件需要的格式
+ */
+export function convertRolesForDisplay(roles?: PageWorkspaceRoleConfig[]): Array<{
+  code: string
+  name: string
+  description?: string
+  isSystem?: boolean
+  memberCount?: number
+  permissions?: Array<{ name: string; enabled: boolean }>
+}> {
+  const roleConfigs = roles || workspaceRoleConfigs
+  
+  return roleConfigs.map(rc => {
+    // 生成权限列表
+    const permissions = allPermissions.map(perm => ({
+      name: perm.name,
+      enabled: rc.permissions.includes(perm.id)
+    }))
+    
+    return {
+      code: rc.role_code,
+      name: rc.role_name,
+      description: rc.description,
+      isSystem: rc.is_system,
+      memberCount: 0, // 这个可以从成员数据中计算
+      permissions
+    }
+  }).sort((a, b) => {
+    // 按照角色级别排序，从高到低
+    const aConfig = roleConfigs.find(rc => rc.role_code === a.code)
+    const bConfig = roleConfigs.find(rc => rc.role_code === b.code)
+    return (bConfig?.role_level || 0) - (aConfig?.role_level || 0)
+  })
+}
+
+/**
  * 将 WorkspaceRoleVO 转换为 PageWorkspaceRoleConfig
  */
 export function convertRoleVOToConfig(vo: WorkspaceRoleVO): PageWorkspaceRoleConfig {
