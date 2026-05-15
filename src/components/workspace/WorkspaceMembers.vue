@@ -59,11 +59,6 @@
             {{ formatTime(row.joinedTime) }}
           </template>
         </el-table-column>
-        <el-table-column label="最后访问" width="150">
-          <template #default="{ row }">
-            {{ formatLastAccess(row.lastAccessTime) }}
-          </template>
-        </el-table-column>
         <el-table-column label="操作" width="180">
           <template #default="{ row }">
             <el-button 

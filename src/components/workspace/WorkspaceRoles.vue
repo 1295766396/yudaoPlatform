@@ -13,7 +13,7 @@
     <el-card class="roles-card">
       <div class="card-header">
         <div class="card-title">空间角色体系</div>
-        <el-button type="primary" @click="handleCreateRole">+ 创建自定义角色</el-button>
+        <!-- <el-button type="primary" @click="handleCreateRole">+ 创建自定义角色</el-button> -->
       </div>
 
       <!-- 角色层级说明 -->
@@ -50,7 +50,7 @@
 
       <!-- 角色卡片列表 -->
       <div class="roles-list">
-        <div v-for="role in roles" :key="role.code" :class="['role-card', role.isSystem ? 'system' : 'custom']">
+        <div v-for="role in mockRoles" :key="role.code" :class="['role-card', role.isSystem ? 'system' : 'custom']">
           <div class="role-header">
             <div class="role-info">
               <div :class="['role-icon', getRoleIconClass(role.code)]">
@@ -110,15 +110,144 @@ interface Role {
   permissions?: Permission[]
 }
 
-const props = defineProps<{
-  roles: Role[]
-}>()
-
 defineEmits<{
   (e: 'back'): void
 }>()
 
 const showHierarchy = ref(true)
+
+// 本地 Mock 数据
+const mockRoles: Role[] = [
+  {
+    code: 'OWNER',
+    name: '所有者 (Owner)',
+    description: '空间最高权限，拥有所有操作权限，可删除空间和转移所有权',
+    isSystem: true,
+    memberCount: 1,
+    permissions: [
+      { name: '删除空间', enabled: true },
+      { name: '转移所有权', enabled: true },
+      { name: '管理成员', enabled: true },
+      { name: '管理角色权限', enabled: true },
+      { name: '编辑空间设置', enabled: true },
+      { name: '查看操作日志', enabled: true },
+      { name: '管理所有内容', enabled: true },
+      { name: '管理公共文件夹', enabled: true },
+      { name: '创建正式业务对象', enabled: true },
+      { name: '创建评审/批注', enabled: true },
+      { name: '查看所有内容', enabled: true },
+      { name: '仅查看公开内容', enabled: true }
+    ]
+  },
+  {
+    code: 'ADMINISTRATOR',
+    name: '管理员 (Admin)',
+    description: '空间管理员，可管理成员、分配角色、配置空间设置',
+    isSystem: true,
+    memberCount: 2,
+    permissions: [
+      { name: '删除空间', enabled: false },
+      { name: '转移所有权', enabled: false },
+      { name: '管理成员', enabled: true },
+      { name: '分配角色', enabled: true },
+      { name: '编辑空间设置', enabled: true },
+      { name: '查看操作日志', enabled: true },
+      { name: '管理所有内容', enabled: true },
+      { name: '管理公共文件夹', enabled: true },
+      { name: '创建正式业务对象', enabled: true },
+      { name: '创建评审/批注', enabled: true },
+      { name: '查看所有内容', enabled: true },
+      { name: '仅查看公开内容', enabled: true }
+    ]
+  },
+  {
+    code: 'LEADER',
+    name: '领导者 (Leader)',
+    description: '团队领导者，可管理公共资源和创建正式业务对象',
+    isSystem: true,
+    memberCount: 3,
+    permissions: [
+      { name: '删除空间', enabled: false },
+      { name: '转移所有权', enabled: false },
+      { name: '管理成员', enabled: false },
+      { name: '管理角色权限', enabled: false },
+      { name: '编辑空间设置', enabled: false },
+      { name: '查看操作日志', enabled: false },
+      { name: '管理所有内容', enabled: true },
+      { name: '管理公共文件夹', enabled: true },
+      { name: '创建正式业务对象', enabled: true },
+      { name: '创建评审/批注', enabled: true },
+      { name: '查看所有内容', enabled: true },
+      { name: '仅查看公开内容', enabled: true }
+    ]
+  },
+  {
+    code: 'AUTHOR',
+    name: '作者 (Author)',
+    description: '内容创作者，可创建正式业务对象，管理自己创建的内容',
+    isSystem: true,
+    memberCount: 5,
+    permissions: [
+      { name: '删除空间', enabled: false },
+      { name: '管理成员', enabled: false },
+      { name: '管理公共文件夹', enabled: false },
+      { name: '创建正式业务对象', enabled: true },
+      { name: '编辑自己创建的内容', enabled: true },
+      { name: '删除自己创建的内容', enabled: true },
+      { name: '创建评审/批注', enabled: true },
+      { name: '查看所有内容', enabled: true },
+      { name: '仅查看公开内容', enabled: true }
+    ]
+  },
+  {
+    code: 'CONTRIBUTOR',
+    name: '贡献者 (Contributor)',
+    description: '内容贡献者，可创建评审、评论、批注等非正式内容',
+    isSystem: true,
+    memberCount: 4,
+    permissions: [
+      { name: '删除空间', enabled: false },
+      { name: '管理成员', enabled: false },
+      { name: '创建正式业务对象', enabled: false },
+      { name: '编辑内容', enabled: false },
+      { name: '创建评审/评论', enabled: true },
+      { name: '创建批注/标记', enabled: true },
+      { name: '查看所有内容', enabled: true },
+      { name: '仅查看公开内容', enabled: true }
+    ]
+  },
+  {
+    code: 'READER',
+    name: '读者 (Reader)',
+    description: '普通读者，可查看空间内所有内容，可创建个人收藏夹',
+    isSystem: true,
+    memberCount: 6,
+    permissions: [
+      { name: '删除空间', enabled: false },
+      { name: '管理成员', enabled: false },
+      { name: '创建正式业务对象', enabled: false },
+      { name: '创建评审/批注', enabled: false },
+      { name: '查看所有内容', enabled: true },
+      { name: '创建个人收藏夹', enabled: true },
+      { name: '管理个人文件夹', enabled: true }
+    ]
+  },
+  {
+    code: 'PUBLIC_READER',
+    name: '公共读者 (Public Reader)',
+    description: '公共读者，仅可查看空间内标记为公开的内容，无其他操作权限',
+    isSystem: true,
+    memberCount: 2,
+    permissions: [
+      { name: '删除空间', enabled: false },
+      { name: '管理成员', enabled: false },
+      { name: '创建正式业务对象', enabled: false },
+      { name: '创建评审/批注', enabled: false },
+      { name: '查看私有内容', enabled: false },
+      { name: '仅查看公开内容', enabled: true }
+    ]
+  }
+]
 
 const getRoleIconClass = (code: string): string => {
   const map: Record<string, string> = {

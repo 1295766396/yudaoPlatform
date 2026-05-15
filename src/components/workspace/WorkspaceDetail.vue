@@ -32,7 +32,6 @@
           <el-descriptions-item label="创建人">{{ workspace.createByName || '-' }}</el-descriptions-item>
           <el-descriptions-item label="成员数">{{ workspace.totalMemberCount || 0 }}</el-descriptions-item>
           <el-descriptions-item label="创建时间">{{ formatTime(workspace.createTime) }}</el-descriptions-item>
-          <el-descriptions-item label="更新时间">{{ formatTime(workspace.updateTime) }}</el-descriptions-item>
           <el-descriptions-item label="空间描述" :span="2">{{ workspace.description || '-' }}</el-descriptions-item>
         </el-descriptions>
 
