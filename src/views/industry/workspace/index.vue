@@ -195,7 +195,7 @@
 
     <!-- 删除确认弹窗 -->
     <el-dialog title="确认删除" v-model="deleteDialogVisible" width="400px">
-      <p>确定要删除工作空间「{{ deletingWorkspace?.workspace_name }}」吗？此操作不可恢复。</p>
+      <p>确定要删除吗？此操作不可恢复。</p>
       <template #footer>
         <el-button @click="deleteDialogVisible = false">取消</el-button>
         <el-button type="danger" :loading="deleting" @click="handleConfirmDelete">
@@ -552,6 +552,7 @@ const handleDeleteWorkspace = (workspace: PageWorkspace) => {
 }
 
 const handleConfirmDelete = async () => {
+  console.log('handleConfirmDelete', deletingWorkspace.value)
   if (!deletingWorkspace.value?.uid) return
   
   deleting.value = true

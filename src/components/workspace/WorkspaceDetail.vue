@@ -10,7 +10,7 @@
       </div>
       <div class="header-right">
         <el-button link type="primary" @click="$emit('edit')">编辑</el-button>
-        <el-button link type="danger" @click="$emit('delete')">删除</el-button>
+        <el-button link type="danger" @click="$emit('delete', workspace)">删除</el-button>
       </div>
     </div>
 
@@ -75,7 +75,7 @@ const props = defineProps<{
 defineEmits<{
   (e: 'back'): void
   (e: 'edit'): void
-  (e: 'delete'): void
+  (e: 'delete', workspace: Workspace): void
   (e: 'manage-members', workspace: Workspace): void
   (e: 'manage-roles', workspace: Workspace): void
 }>()
