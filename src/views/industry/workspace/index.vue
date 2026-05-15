@@ -172,9 +172,9 @@
     <el-dialog title="变更角色" v-model="changeRoleDialogVisible" width="400px">
       <el-form label-width="100px">
         <el-form-item label="成员">
-          <el-input :value="changingMember?.user_name" disabled />
+          <el-input :value="changingMember?.userNickname || changingMember?.userName" disabled />
         </el-form-item>
-        <el-form-item label="新角色">
+        <el-form-item label="角色">
           <el-select v-model="newMemberRole" placeholder="请选择角色" style="width: 100%;">
             <el-option
               v-for="role in workspaceRoleConfigs"
@@ -338,7 +338,7 @@ const displayRoles = computed(() => {
   // 计算每个角色的成员数量
   const roleMemberCount: Record<string, number> = {}
   for (const member of currentMembers.value) {
-    const roleCode = member.role_code
+    const roleCode = member.roleCode
     roleMemberCount[roleCode] = (roleMemberCount[roleCode] || 0) + 1
   }
   
@@ -619,7 +619,7 @@ const handleConfirmAddMembers = async () => {
 
 const handleChangeRole = (member: PageWorkspaceMember) => {
   changingMember.value = member
-  newMemberRole.value = member.role_code
+  newMemberRole.value = member.roleCode
   changeRoleDialogVisible.value = true
 }
 
@@ -633,7 +633,7 @@ const handleConfirmChangeRole = async () => {
       memberUid: changingMember.value.uid,
       newRoleCode: newMemberRole.value,
     })
-    ElMessage.success(`已将 ${changingMember.value.user_name} 的角色变更为 ${getRoleName(newMemberRole.value)}`)
+    ElMessage.success(`已将 ${changingMember.value.userNickname || changingMember.value.userName} 的角色变更为 ${getRoleName(newMemberRole.value)}`)
     changeRoleDialogVisible.value = false
     await fetchMembers()
   } catch (error) {
@@ -648,7 +648,7 @@ const handleRemoveMember = async (member: PageWorkspaceMember) => {
   if (!currentWorkspace.value?.uid) return
   
   try {
-    await ElMessageBox.confirm(`确定要移除成员「${member.user_name}」吗？`, '确认移除', {
+    await ElMessageBox.confirm(`确定要移除成员吗？`, '确认移除', {
       type: 'warning',
     })
     await removeMember(currentWorkspace.value.uid, member.uid)
