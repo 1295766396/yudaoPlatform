@@ -8,7 +8,10 @@ import type {
   MemberStatus,
   WorkspaceRoleVO,
   WorkspaceRoleDetailVO,
-  WorkspaceRoleHierarchyVO
+  WorkspaceRoleHierarchyVO,
+  WorkspaceSimpleVO,
+  WorkspaceVO,
+  WorkspaceMemberVO
 } from '@/api/own/workspace'
 import type { TagProps } from 'element-plus'
 
@@ -43,37 +46,11 @@ export interface PageWorkspaceRoleDetail extends PageWorkspaceRoleConfig {
   inherited_role_name?: string
 }
 
-// 工作空间类型（页面使用，下划线命名）
-export interface PageWorkspace {
-  id: string
-  uid?: string
-  workspace_code: string
-  workspace_name: string
-  workspace_type: WorkspaceType
-  permission_level: PermissionLevel
-  description?: string
-  status: WorkspaceStatus
-  is_default: boolean
-  create_by: string
-  create_time: string
-  update_time: string
-  member_count: number
-  project_count: number | string
-  owner_user_uid?: string
-}
+// 工作空间类型（直接使用 API 类型）
+export type PageWorkspace = WorkspaceSimpleVO | WorkspaceVO
 
-// 工作空间成员类型（页面使用，下划线命名）
-export interface PageWorkspaceMember {
-  uid: string
-  user_uid: string
-  user_name: string
-  avatar?: string
-  role_code: WorkspaceRoleCode
-  joined_time: string
-  last_access_time?: string
-  is_online?: boolean
-  status: MemberStatus
-}
+// 工作空间成员类型（直接使用 API 类型）
+export type PageWorkspaceMember = WorkspaceMemberVO
 
 // 工作空间活动类型（页面使用，下划线命名）
 export interface PageWorkspaceActivity {

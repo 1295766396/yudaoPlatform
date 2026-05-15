@@ -366,11 +366,11 @@ export function getDefaultWorkspaceForm(): WorkspaceForm {
 // 从工作空间创建表单
 export function createWorkspaceFormFromWorkspace(workspace: PageWorkspace): WorkspaceForm {
   return {
-    workspace_code: workspace.workspace_code,
-    workspace_name: workspace.workspace_name,
-    workspace_type: workspace.workspace_type,
-    permission_level: workspace.permission_level,
-    description: workspace.description || ''
+    workspace_code: (workspace as any).workspaceCode || '',
+    workspace_name: workspace.workspaceName,
+    workspace_type: (workspace as any).workspaceType || 'TEAM',
+    permission_level: workspace.permissionLevel,
+    description: (workspace as any).description || ''
   }
 }
 

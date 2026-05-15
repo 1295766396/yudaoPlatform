@@ -44,35 +44,34 @@
             @click="goToDetail(workspace)"
           >
             <div class="workspace-card-header">
-              <div :class="['workspace-icon', workspace.workspace_type === 'TEAM' ? 'team' : 'project']">
-                <el-icon v-if="workspace.workspace_type === 'TEAM'"><User /></el-icon>
-                <el-icon v-else><FolderOpened /></el-icon>
+              <div :class="['workspace-icon', 'team']">
+                <el-icon><User /></el-icon>
               </div>
               <div class="workspace-tags">
-                <el-tag v-if="workspace.is_default" type="primary" size="small" effect="dark">默认</el-tag>
+                <el-tag v-if="workspace.isDefault" type="primary" size="small" effect="dark">默认</el-tag>
                 <el-tag 
-                  :type="getPermissionTagType(workspace.permission_level)"
+                  :type="getPermissionTagType(workspace.permissionLevel)"
                   size="small"
                   effect="light"
                 >
-                  {{ getPermissionLevelLabel(workspace.permission_level) }}
+                  {{ getPermissionLevelLabel(workspace.permissionLevel) }}
                 </el-tag>
               </div>
             </div>
-            <div class="workspace-name">{{ workspace.workspace_name }}</div>
-            <div class="workspace-desc">{{ workspace.description }}</div>
+            <div class="workspace-name">{{ workspace.workspaceName }}</div>
+            <div class="workspace-desc">--</div>
             <div class="workspace-meta">
               <span class="meta-item">
                 <el-icon><User /></el-icon>
-                {{ workspace.member_count }} 成员
+                -- 成员
               </span>
               <span class="meta-item">
                 <el-icon><Folder /></el-icon>
-                {{ workspace.project_count }} 项目
+                -- 项目
               </span>
             </div>
             <div class="workspace-footer">
-              <span class="workspace-creator">{{ workspace.create_by }} · {{ formatTime(workspace.create_time) }}</span>
+              <span class="workspace-creator">-- · {{ formatTime(workspace.createTime) }}</span>
               <div class="workspace-actions">
                 <el-button link type="primary" size="small" @click.stop="goToDetail(workspace)">查看详情</el-button>
                 <el-button link type="warning" size="small" @click.stop="goToRoles(workspace)">角色管理</el-button>
@@ -104,7 +103,7 @@
                 <el-icon><ArrowLeft /></el-icon>
                 返回
               </el-button>
-              <span class="detail-title">{{ currentWorkspace.workspace_name }}</span>
+              <span class="detail-title">{{ currentWorkspace.workspaceName }}</span>
             </div>
             <div class="header-right">
               <el-button type="primary" @click="handleEditWorkspace">编辑</el-button>
@@ -119,16 +118,16 @@
                 <h4 class="section-title">基本信息</h4>
                 <el-descriptions :column="2" border class="prop-descriptions">
                   <el-descriptions-item label="空间编码">
-                    {{ currentWorkspace.workspace_code }}
+                    {{ (currentWorkspace as any).workspaceCode || '-' }}
                   </el-descriptions-item>
                   <el-descriptions-item label="空间名称">
-                    {{ currentWorkspace.workspace_name }}
+                    {{ currentWorkspace.workspaceName }}
                   </el-descriptions-item>
                   <el-descriptions-item label="空间类型">
-                    {{ typeLabels[currentWorkspace.workspace_type] }}
+                    {{ typeLabels[(currentWorkspace as any).workspaceType || 'TEAM'] }}
                   </el-descriptions-item>
                   <el-descriptions-item label="权限级别">
-                    {{ permissionLevelLabels[currentWorkspace.permission_level] }}
+                    {{ permissionLevelLabels[currentWorkspace.permissionLevel] }}
                   </el-descriptions-item>
                   <el-descriptions-item label="状态">
                     <el-tag :type="getStatusTagType(currentWorkspace.status)" size="small">
@@ -136,16 +135,16 @@
                     </el-tag>
                   </el-descriptions-item>
                   <el-descriptions-item label="创建人">
-                    {{ currentWorkspace.create_by }}
+                    {{ (currentWorkspace as any).createByName || '-' }}
                   </el-descriptions-item>
                   <el-descriptions-item label="创建时间">
-                    {{ currentWorkspace.create_time }}
+                    {{ currentWorkspace.createTime }}
                   </el-descriptions-item>
                   <el-descriptions-item label="更新时间">
-                    {{ currentWorkspace.update_time }}
+                    {{ (currentWorkspace as any).updateTime || '-' }}
                   </el-descriptions-item>
                   <el-descriptions-item label="描述" :span="2">
-                    {{ currentWorkspace.description || '-' }}
+                    {{ (currentWorkspace as any).description || '-' }}
                   </el-descriptions-item>
                 </el-descriptions>
               </div>
@@ -166,14 +165,14 @@
                   >
                     <div class="member-avatar">
                       <el-avatar :size="40">
-                        {{ member.user_name.charAt(0) }}
+                        {{ member.userName.charAt(0) }}
                       </el-avatar>
                     </div>
                     <div class="member-info">
-                      <div class="member-name">{{ member.user_name }}</div>
+                      <div class="member-name">{{ member.userName }}</div>
                       <div class="member-role">
-                        <el-tag :type="getRoleTagType(member.role_code)" size="small">
-                          {{ roleLabels[member.role_code] }}
+                        <el-tag :type="getRoleTagType(member.roleCode)" size="small">
+                          {{ roleLabels[member.roleCode] }}
                         </el-tag>
                         <span class="member-status" v-if="member.status !== 'ACTIVE'">
                           {{ member.status === 'INVITED' ? '待接受' : '未激活' }}
@@ -181,9 +180,9 @@
                       </div>
                     </div>
                     <div class="member-time">
-                      <div class="join-time">加入 {{ member.joined_time }}</div>
-                      <div v-if="member.last_access_time" class="last-access">
-                        最后访问 {{ member.last_access_time }}
+                      <div class="join-time">加入 {{ member.joinedTime }}</div>
+                      <div v-if="member.lastAccessTime" class="last-access">
+                        最后访问 {{ member.lastAccessTime }}
                       </div>
                     </div>
                   </div>
@@ -214,7 +213,7 @@
                 <el-icon><ArrowLeft /></el-icon>
                 返回
               </el-button>
-              <span class="detail-title">角色体系 - {{ currentWorkspace.workspace_name }}</span>
+              <span class="detail-title">角色体系 - {{ currentWorkspace.workspaceName }}</span>
             </div>
           </div>
         </template>
@@ -348,7 +347,7 @@
                 <el-icon><ArrowLeft /></el-icon>
                 返回
               </el-button>
-              <span class="detail-title">成员管理 - {{ currentWorkspace.workspace_name }}</span>
+              <span class="detail-title">成员管理 - {{ currentWorkspace.workspaceName }}</span>
             </div>
             <div class="header-right">
               <el-button type="primary" @click="handleAddMembers">添加成员</el-button>
@@ -368,14 +367,14 @@
             >
               <div class="member-avatar">
                 <el-avatar :size="40">
-                  {{ member.user_name.charAt(0) }}
+                  {{ member.userName.charAt(0) }}
                 </el-avatar>
               </div>
               <div class="member-info">
-                <div class="member-name">{{ member.user_name }}</div>
+                <div class="member-name">{{ member.userName }}</div>
                 <div class="member-role">
-                  <el-tag :type="getRoleTagType(member.role_code)" size="small">
-                    {{ roleLabels[member.role_code] }}
+                  <el-tag :type="getRoleTagType(member.roleCode)" size="small">
+                    {{ roleLabels[member.roleCode] }}
                   </el-tag>
                   <span class="member-status" v-if="member.status !== 'ACTIVE'">
                     {{ member.status === 'INVITED' ? '待接受' : '未激活' }}
@@ -383,9 +382,9 @@
                 </div>
               </div>
               <div class="member-time">
-                <div class="join-time">加入 {{ member.joined_time }}</div>
-                <div v-if="member.last_access_time" class="last-access">
-                  最后访问 {{ member.last_access_time }}
+                <div class="join-time">加入 {{ member.joinedTime }}</div>
+                <div v-if="member.lastAccessTime" class="last-access">
+                  最后访问 {{ member.lastAccessTime }}
                 </div>
               </div>
               <div class="member-actions">
@@ -548,9 +547,6 @@ import {
   type PageWorkspaceRoleHierarchy,
 } from './types'
 import {
-  convertWorkspaceSimpleToPage,
-  convertWorkspaceToPage,
-  convertWorkspaceMemberToPage,
   workspaceRoleConfigs,
   getRoleInheritanceChain,
   getPermissionTagType,
@@ -639,10 +635,9 @@ const fetchWorkspaces = async () => {
       status: statusFilter.value || undefined,
     }
     const res = await getWorkspacePage(params)
-    if (res.data) {
-      workspaces.value = (res.data.list || []).map((item: WorkspaceSimpleVO) => 
-        convertWorkspaceSimpleToPage(item)
-      )
+    console.log('res', res)
+    if (res) {
+      workspaces.value = res.list || []
     }
   } catch (error) {
     ElMessage.error('获取工作空间列表失败')
@@ -656,8 +651,8 @@ const fetchWorkspaces = async () => {
 const fetchWorkspaceDetail = async (uid: string) => {
   try {
     const res = await getWorkspace(uid)
-    if (res.data) {
-      currentWorkspace.value = convertWorkspaceToPage(res.data)
+    if (res) {
+      currentWorkspace.value = res
     }
   } catch (error) {
     ElMessage.error('获取工作空间详情失败')
@@ -677,10 +672,8 @@ const fetchMembers = async () => {
       pageSize: 100,
     }
     const res = await getMemberPage(params)
-    if (res.data) {
-      currentMembers.value = (res.data.list || []).map((item: WorkspaceMemberVO) =>
-        convertWorkspaceMemberToPage(item)
-      )
+    if (res) {
+      currentMembers.value = res.list || []
     }
   } catch (error) {
     ElMessage.error('获取成员列表失败')
@@ -702,8 +695,8 @@ const fetchRoles = async () => {
   rolesLoading.value = true
   try {
     const res = await getRoleList(currentWorkspace.value.uid)
-    if (res.data) {
-      currentRoles.value = res.data.map(convertRoleVOToConfig)
+    if (res) {
+      currentRoles.value = res.map(convertRoleVOToConfig)
     }
   } catch (error) {
     ElMessage.error('获取角色列表失败')
@@ -718,8 +711,8 @@ const fetchRoleDetail = async (roleUid: string) => {
   roleDetailLoading.value = true
   try {
     const res = await getRoleDetail(roleUid)
-    if (res.data) {
-      selectedRoleDetail.value = convertRoleDetailVOToPage(res.data)
+    if (res) {
+      selectedRoleDetail.value = convertRoleDetailVOToPage(res)
     }
   } catch (error) {
     ElMessage.error('获取角色详情失败')
@@ -736,8 +729,8 @@ const fetchRoleHierarchy = async () => {
   roleHierarchyLoading.value = true
   try {
     const res = await getRoleHierarchy(currentWorkspace.value.uid)
-    if (res.data) {
-      roleHierarchy.value = res.data.map(convertRoleHierarchyVOToPage)
+    if (res) {
+      roleHierarchy.value = res.map(convertRoleHierarchyVOToPage)
     }
   } catch (error) {
     ElMessage.error('获取角色层级结构失败')
