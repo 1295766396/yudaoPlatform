@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>应用详情 - App Store</title>
+    <link href="https://unpkg.com/element-plus@2.4.4/dist/index.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3.3.13/dist/vue.global.prod.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f5f7fa; }
+        #app { padding:24px; max-width:1200px; margin:0 auto; }
+        .back-btn { display:inline-flex; align-items:center; gap:4px; color:#409EFF; text-decoration:none; margin-bottom:16px; font-size:14px; }
+        .back-btn:hover { text-decoration:underline; }
+        .app-detail-page { background:white; border-radius:8px; padding:32px; box-shadow:0 2px 12px rgba(0,0,0,0.04); }
+        .detail-top { display:flex; gap:24px; margin-bottom:32px; padding-bottom:24px; border-bottom:1px solid #ebeef5; }
+        .detail-icon { flex-shrink:0; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); border-radius:16px; padding:24px; color:white; }
+        .detail-info { flex:1; }
+        .detail-title-row { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+        .detail-name { font-size:28px; font-weight:600; color:#303133; }
+        .detail-desc { font-size:15px; color:#606266; margin-bottom:16px; line-height:1.6; }
+        .detail-stats { display:flex; gap:24px; font-size:14px; color:#909399; margin-bottom:20px; }
+        .detail-stats .stat { display:flex; align-items:center; gap:4px; }
+        .star-icon { color:#f7ba2a; }
+        .detail-actions { display:flex; gap:12px; flex-wrap:wrap; }
+        .tab-content { padding:16px 0; }
+        .section-title { font-size:16px; font-weight:600; color:#303133; margin-bottom:12px; }
+        .intro-text { font-size:14px; color:#606266; line-height:1.8; margin-bottom:24px; }
+        .feature-list { list-style:none; }
+        .feature-list li { display:flex; align-items:flex-start; gap:8px; padding:8px 0; font-size:14px; color:#606266; }
+        .version-item { padding:20px 0; border-bottom:1px solid #ebeef5; }
+        .version-item:last-child { border-bottom:none; }
+        .version-header { display:flex; align-items:center; gap:12px; margin-bottom:8px; }
+        .version-no { font-size:16px; font-weight:600; color:#303133; }
+        .version-time { font-size:13px; color:#909399; }
+        .version-log { font-size:14px; color:#606266; line-height:1.6; }
+        .system-reqs { background:#f5f7fa; border-radius:8px; padding:20px; }
+        .req-row { display:flex; margin-bottom:12px; }
+        .req-label { width:120px; font-size:14px; color:#909399; }
+        .req-value { font-size:14px; color:#606266; }
+        .license-card { border:1px solid #dcdfe6; border-radius:8px; padding:16px; cursor:pointer; transition:all 0.2s; }
+        .license-card:hover { border-color:#409EFF; }
+        .license-card.active { border-color:#409EFF; background:#ecf5ff; }
+        .license-card h4 { font-size:16px; margin-bottom:8px; color:#303133; }
+        .license-card .price { font-size:24px; font-weight:600; color:#f56c6c; margin-bottom:8px; }
+        .license-card .desc { font-size:13px; color:#909399; }
+        .duration-card { border:1px solid #dcdfe6; border-radius:8px; padding:12px 16px; cursor:pointer; transition:all 0.2s; text-align:center; }
+        .duration-card:hover { border-color:#409EFF; }
+        .duration-card.active { border-color:#409EFF; background:#ecf5ff; }
+        .duration-card .months { font-size:14px; color:#606266; }
+        .duration-card .price { font-size:16px; font-weight:600; color:#303133; margin-top:4px; }
+        .duration-card .discount { font-size:12px; color:#67c23a; margin-top:4px; }
+        .progress-container { padding:12px 0; }
+        .progress-step { display:flex; align-items:center; margin-bottom:12px; }
+        .progress-step .step-icon { width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:12px; flex-shrink:0; }
+        .progress-step .step-icon.pending { background:#909399; color:white; }
+        .progress-step .step-icon.processing { background:#409EFF; color:white; animation:pulse 1.5s infinite; }
+        .progress-step .step-icon.success { background:#67c23a; color:white; }
+        .progress-step .step-icon.error { background:#f56c6c; color:white; }
+        .progress-step .step-text { flex:1; }
+        .progress-step .step-text .title { font-size:14px; color:#303133; }
+        .progress-step .step-text .desc { font-size:12px; color:#909399; margin-top:2px; }
+        @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+        .compatibility-item { display:flex; align-items:center; padding:8px 0; }
+        .compatibility-item .icon { margin-right:12px; flex-shrink:0; }
+        .compatibility-item .text { flex:1; }
+        .compatibility-item .text .label { font-size:14px; color:#303133; }
+        .compatibility-item .text .value { font-size:13px; color:#606266; margin-top:2px; }
+
+        /* 优化动画和响应式布局 */
+        .license-card { border:1px solid #dcdfe6; border-radius:8px; padding:16px; cursor:pointer; transition:all 0.2s ease; }
+        .duration-card { border:1px solid #dcdfe6; border-radius:8px; padding:12px 16px; cursor:pointer; transition:all 0.2s ease; text-align:center; }
+        .progress-step .step-icon.processing { background:#409EFF; color:white; animation:pulse 1.5s ease-in-out infinite; }
+        
+        /* 响应式布局 */
+        @media (max-width:768px) {
+            #app { padding:16px; }
+            .app-detail-page { padding:20px; }
+            .detail-top { flex-direction:column; }
+            .detail-title-row { flex-direction:column; align-items:flex-start; gap:8px; }
+            .detail-actions { flex-direction:column; }
+            .detail-actions .el-button { width:100%; }
+            .req-row { flex-direction:column; gap:4px; }
+            .req-label { width:100%; }
+            .detail-stats { flex-direction:column; gap:8px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <a href="app-store-home.html" class="back-btn">
+            <svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            返回应用商店
+        </a>
+        <div class="app-detail-page">
+            <div class="detail-top">
+                <div class="detail-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:64px;height:64px">
+                        <rect x="2" y="3" width="20" height="14" rx="2"/>
+                        <path d="M8 21h8M12 17v4"/>
+                    </svg>
+                </div>
+                <div class="detail-info">
+                    <div class="detail-title-row">
+                        <h2 class="detail-name">{{ currentApp.name }}</h2>
+                        <el-tag v-if="currentApp.isOfficial" type="success" size="small">官方认证</el-tag>
+                        <el-tag v-if="currentApp.status === 'has_update'" type="warning" size="small">有更新</el-tag>
+                        <el-tag v-if="currentApp.hasLicense" type="success" size="small">已授权</el-tag>
+                        <el-tag v-if="!currentApp.hasLicense && !currentApp.isFree" type="warning" size="small">未授权</el-tag>
+                    </div>
+                    <p class="detail-desc">{{ currentApp.description }}</p>
+                    <div class="detail-stats">
+                        <span class="stat">
+                            <svg viewBox="0 0 24 24" fill="#f7ba2a" stroke="none" style="width:16px;height:16px" class="star-icon">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                            {{ currentApp.rating }} 分
+                        </span>
+                        <span class="stat">{{ formatCount(currentApp.installCount) }} 次安装</span>
+                        <span class="stat">{{ currentApp.author }}</span>
+                        <span class="stat">{{ currentApp.updateTime }}</span>
+                    </div>
+                    <div class="detail-actions">
+                        <el-button 
+                            type="primary" 
+                            :loading="currentApp.status === 'installing' || currentApp.status === 'updating'"
+                            :disabled="currentApp.status === 'installed'"
+                            size="large" 
+                            @click="startInstall">
+                            {{ getButtonText(currentApp.status) }}
+                        </el-button>
+                        <el-button 
+                            v-if="!currentApp.isFree && !currentApp.hasLicense"
+                            type="success" 
+                            size="large" 
+                            @click="showPurchaseDialog = true">
+                            购买授权
+                        </el-button>
+                        <el-button 
+                            v-if="!currentApp.isFree && currentApp.hasLicense"
+                            type="info" 
+                            size="large" 
+                            disabled>
+                            已授权
+                        </el-button>
+                        <el-button size="large" @click="showUninstallConfirm = true" :disabled="currentApp.status !== 'installed'">
+                            卸载
+                        </el-button>
+                    </div>
+                </div>
+            </div>
+            <el-tabs v-model="activeTab">
+                <el-tab-pane label="功能介绍" name="intro">
+                    <div class="tab-content">
+                        <h4 class="section-title">应用简介</h4>
+                        <p class="intro-text">{{ currentApp.introduction }}</p>
+                        <h4 class="section-title">核心功能</h4>
+                        <ul class="feature-list">
+                            <li v-for="(feature, idx) in currentApp.features" :key="idx">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#67c23a" stroke-width="2" style="width:16px;height:16px;flex-shrink:0;margin-top:2px">
+                                    <polyline points="20,6 9,17 4,12"/>
+                                </svg>
+                                {{ feature }}
+                            </li>
+                        </ul>
+                    </div>
+                </el-tab-pane>
+                <el-tab-pane label="系统要求" name="system">
+                    <div class="tab-content">
+                        <div class="system-reqs">
+                            <h4 class="section-title">运行环境要求</h4>
+                            <div class="req-row">
+                                <span class="req-label">操作系统</span>
+                                <span class="req-value">Windows 10/11, macOS 11+, Linux (Ubuntu 18.04+)</span>
+                            </div>
+                            <div class="req-row">
+                                <span class="req-label">处理器</span>
+                                <span class="req-value">Intel Core i5 或同等性能以上</span>
+                            </div>
+                            <div class="req-row">
+                                <span class="req-label">内存</span>
+                                <span class="req-value">8GB RAM 最低，16GB 推荐</span>
+                            </div>
+                            <div class="req-row">
+                                <span class="req-label">存储空间</span>
+                                <span class="req-value">2GB 可用空间</span>
+                            </div>
+                            <div class="req-row">
+                                <span class="req-label">网络</span>
+                                <span class="req-value">稳定的互联网连接</span>
+                            </div>
+                        </div>
+                    </div>
+                </el-tab-pane>
+                <el-tab-pane label="版本历史" name="versions">
+                    <div class="tab-content">
+                        <div v-for="(ver, idx) in currentApp.versions" :key="idx" class="version-item">
+                            <div class="version-header">
+                                <span class="version-no">{{ ver.version }}</span>
+                                <el-tag v-if="ver.isLatest" type="success" size="small">最新</el-tag>
+                                <span class="version-time">{{ ver.updateTime }}</span>
+                            </div>
+                            <p class="version-log">{{ ver.updateLog }}</p>
+                        </div>
+                    </div>
+                </el-tab-pane>
+            </el-tabs>
+        </div>
+        
+        <el-dialog v-model="showUninstallConfirm" title="确认卸载" width="420px">
+            <p>确定要卸载「{{ currentApp.name }}」吗？应用数据将被清除。</p>
+            <template #footer>
+                <el-button @click="showUninstallConfirm = false">取消</el-button>
+                <el-button type="danger" @click="handleUninstall">确定卸载</el-button>
+            </template>
+        </el-dialog>
+        
+        <el-dialog 
+            v-model="showInstallDialog" 
+            :title="installDialogTitle" 
+            width="560px"
+            :close-on-click-modal="false"
+            :close-on-press-escape="false">
+            <div v-if="installStep === 'compatibility'">
+                <h4 class="section-title" style="margin-bottom:16px">兼容性检查</h4>
+                <div class="compatibility-item" v-for="item in compatibilityCheck" :key="item.key">
+                    <div class="icon">
+                        <el-icon v-if="item.passed" color="#67c23a"><CircleCheck /></el-icon>
+                        <el-icon v-else color="#f56c6c"><CircleClose /></el-icon>
+                    </div>
+                    <div class="text">
+                        <div class="label">{{ item.label }}</div>
+                        <div class="value">{{ item.value }}</div>
+                    </div>
+                </div>
+                <el-alert 
+                    v-if="!compatibilityPassed" 
+                    title="部分环境不满足要求，可能影响应用正常运行" 
+                    type="warning" 
+                    :closable="false"
+                    style="margin-top:16px">
+                </el-alert>
+            </div>
+            <div v-else-if="installStep === 'downloading'">
+                <h4 class="section-title" style="margin-bottom:16px">下载进度</h4>
+                <el-progress 
+                    :percentage="downloadProgress" 
+                    :status="downloadProgress === 100 ? 'success' : ''"
+                    :stroke-width="20">
+                </el-progress>
+                <div style="margin-top:12px;font-size:14px;color:#606266">
+                    已下载 {{ downloadProgress }}% - {{ currentApp.name }} {{ currentApp.version }}
+                </div>
+                <el-alert 
+                    v-if="showResumeHint" 
+                    title="检测到未完成的下载，正在恢复下载..." 
+                    type="info" 
+                    :closable="false"
+                    style="margin-top:16px">
+                </el-alert>
+            </div>
+            <div v-else-if="installStep === 'installing'">
+                <h4 class="section-title" style="margin-bottom:16px">安装进度</h4>
+                <div class="progress-container">
+                    <div class="progress-step" v-for="step in installSteps" :key="step.key">
+                        <div class="step-icon" :class="step.status">
+                            <el-icon v-if="step.status === 'success'"><Check /></el-icon>
+                            <el-icon v-else-if="step.status === 'error'"><Close /></el-icon>
+                            <el-icon v-else-if="step.status === 'processing'"><Loading /></el-icon>
+                            <span v-else>{{ step.index }}</span>
+                        </div>
+                        <div class="step-text">
+                            <div class="title">{{ step.title }}</div>
+                            <div class="desc">{{ step.desc }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <template #footer>
+                <div v-if="installStep === 'compatibility'">
+                    <el-button @click="showInstallDialog = false">取消</el-button>
+                    <el-button type="primary" @click="proceedToDownload" :disabled="!canProceed">
+                        {{ compatibilityPassed ? '继续安装' : '仍要继续' }}
+                    </el-button>
+                </div>
+                <div v-else-if="installStep === 'success'">
+                    <el-button type="primary" @click="closeInstallDialog">完成</el-button>
+                </div>
+            </template>
+        </el-dialog>
+        
+        <el-dialog 
+            v-model="showPurchaseDialog" 
+            title="购买授权" 
+            width="640px"
+            :close-on-click-modal="false">
+            <div v-if="purchaseStep === 'select'">
+                <h4 class="section-title" style="margin-bottom:16px">选择授权类型</h4>
+                <el-row :gutter="16" style="margin-bottom:24px">
+                    <el-col :span="12">
+                        <div 
+                            class="license-card" 
+                            :class="{ active: selectedLicense === 'personal' }"
+                            @click="selectedLicense = 'personal'">
+                            <h4>个人授权</h4>
+                            <div class="price">¥{{ priceInfo.personal.basePrice }}</div>
+                            <div class="desc">适用于个人用户，单设备授权</div>
+                        </div>
+                    </el-col>
+                    <el-col :span="12">
+                        <div 
+                            class="license-card" 
+                            :class="{ active: selectedLicense === 'enterprise' }"
+                            @click="selectedLicense = 'enterprise'">
+                            <h4>企业授权</h4>
+                            <div class="price">¥{{ priceInfo.enterprise.basePrice }}</div>
+                            <div class="desc">适用于企业用户，10设备授权</div>
+                        </div>
+                    </el-col>
+                </el-row>
+                
+                <h4 class="section-title" style="margin-bottom:16px">选择购买时长</h4>
+                <el-row :gutter="12">
+                    <el-col :span="6" v-for="duration in durationOptions" :key="duration.months">
+                        <div 
+                            class="duration-card" 
+                            :class="{ active: selectedDuration === duration.months }"
+                            @click="selectedDuration = duration.months">
+                            <div class="months">{{ duration.label }}</div>
+                            <div class="price">¥{{ getDurationPrice(duration) }}</div>
+                            <div class="discount" v-if="duration.discount">{{ duration.discount }}</div>
+                        </div>
+                    </el-col>
+                </el-row>
+                
+                <div style="background:#f5f7fa;border-radius:8px;padding:16px;margin-top:24px">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                        <span style="color:#606266">应付金额</span>
+                        <span style="font-size:28px;font-weight:600;color:#f56c6c">¥{{ totalPrice }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div v-else-if="purchaseStep === 'confirm'">
+                <h4 class="section-title" style="margin-bottom:16px">确认订单</h4>
+                <el-descriptions :column="1" border>
+                    <el-descriptions-item label="应用名称">{{ currentApp.name }}</el-descriptions-item>
+                    <el-descriptions-item label="授权类型">{{ selectedLicense === 'personal' ? '个人授权' : '企业授权' }}</el-descriptions-item>
+                    <el-descriptions-item label="购买时长">{{ getDurationLabel(selectedDuration) }}</el-descriptions-item>
+                    <el-descriptions-item label="订单金额">
+                        <span style="color:#f56c6c;font-weight:600">¥{{ totalPrice }}</span>
+                    </el-descriptions-item>
+                </el-descriptions>
+            </div>
+            
+            <div v-else-if="purchaseStep === 'processing'">
+                <div style="text-align:center;padding:40px 0">
+                    <el-icon class="is-loading" style="font-size:48px;color:#409EFF"><Loading /></el-icon>
+                    <div style="margin-top:16px;color:#606266">正在处理支付...</div>
+                </div>
+            </div>
+            
+            <div v-else-if="purchaseStep === 'success'">
+                <div style="text-align:center;padding:40px 0">
+                    <el-icon style="font-size:48px;color:#67c23a"><CircleCheck /></el-icon>
+                    <div style="margin-top:16px;color:#303133;font-size:18px;font-weight:600">授权成功！</div>
+                    <div style="margin-top:8px;color:#606266">您的授权已生效，有效期至 {{ licenseExpireDate }}</div>
+                </div>
+            </div>
+            
+            <template #footer>
+                <div v-if="purchaseStep === 'select'">
+                    <el-button @click="showPurchaseDialog = false">取消</el-button>
+                    <el-button type="primary" @click="confirmPurchase" :disabled="!canPurchase">下一步</el-button>
+                </div>
+                <div v-else-if="purchaseStep === 'confirm'">
+                    <el-button @click="purchaseStep = 'select'">上一步</el-button>
+                    <el-button type="primary" @click="processPayment">确认支付</el-button>
+                </div>
+                <div v-else-if="purchaseStep === 'success'">
+                    <el-button type="primary" @click="closePurchaseDialog">完成</el-button>
+                </div>
+            </template>
+        </el-dialog>
+    </div>
+    
+    <script>
+        const { createApp, ref, computed, onMounted } = Vue;
+        const { CircleCheck, CircleClose, Check, Close, Loading } = ElementPlus;
+        
+        createApp({
+            components: { CircleCheck, CircleClose, Check, Close, Loading },
+            setup() {
+                const activeTab = ref('intro');
+                const showUninstallConfirm = ref(false);
+                const showPurchaseDialog = ref(false);
+                const showInstallDialog = ref(false);
+                
+                const apps = {
+                    'app-1': {
+                        id: 'app-1', 
+                        name: 'CATIA集成客户端', 
+                        description: 'CATIA V5/V6与平台深度集成，文件一键打开/保存回传',
+                        icon: 'platform', 
+                        version: 'v2.1.0', 
+                        status: 'has_update', 
+                        installCount: 1200, 
+                        rating: 4.8,
+                        author: '官方开发组', 
+                        updateTime: '2026-05-01', 
+                        isOfficial: true,
+                        isFree: false,
+                        price: 999,
+                        hasLicense: false,
+                        introduction: 'CATIA集成客户端为您提供与设计平台的无缝对接体验。支持V5/V6多版本兼容，文件自动同步，BOM自动提取等核心功能，让设计协作更加高效便捷。',
+                        features: ['CATIA V5/V6多版本兼容', '文件一键打开/保存回传', 'BOM结构自动提取与同步', '设计版本自动关联', '实时消息推送'],
+                        versions: [
+                            { version: 'v2.1.0', updateTime: '2026-05-01', updateLog: '新增V6 R33版本支持；优化文件同步速度；修复已知问题', isLatest: true },
+                            { version: 'v2.0.0', updateTime: '2026-03-15', updateLog: '重构核心架构，性能提升50%；新增BOM自动提取功能' },
+                            { version: 'v1.9.0', updateTime: '2026-02-20', updateLog: '修复V5R29兼容性问题；优化用户体验' }
+                        ],
+                        requiredOS: 'Windows 10/11',
+                        requiredPLM: 'PLM 2024.1+',
+                        requiredMemory: '8GB+',
+                        requiredDisk: '2GB+'
+                    },
+                    'app-2': {
+                        id: 'app-2', 
+                        name: 'PDQ自动检测工具', 
+                        description: '自动化产品数据质量检查，支持自定义规则',
+                        icon: 'check', 
+                        version: 'v3.2.1', 
+                        status: 'installed', 
+                        installCount: 2400, 
+                        rating: 4.9,
+                        author: '官方开发组', 
+                        updateTime: '2026-05-10', 
+                        isOfficial: true,
+                        isFree: true,
+                        price: 0,
+                        hasLicense: true,
+                        introduction: 'PDQ自动检测工具提供全面的产品数据质量检查能力。内置100+标准检查规则，支持自定义规则扩展，可视化报告输出，帮助您快速发现和修复数据问题。',
+                        features: ['100+标准检查规则', '自定义规则编辑器', '可视化检查报告', '批量检查支持', '历史记录追踪'],
+                        versions: [
+                            { version: 'v3.2.1', updateTime: '2026-05-10', updateLog: '修复规则编辑器问题；优化检查性能', isLatest: true },
+                            { version: 'v3.2.0', updateTime: '2026-04-28', updateLog: '新增20+检查规则；支持自定义规则' }
+                        ],
+                        requiredOS: 'Windows 10/11 or Linux',
+                        requiredPLM: 'PLM 2023.2+',
+                        requiredMemory: '4GB+',
+                        requiredDisk: '500MB+'
+                    }
+                };
+                
+                const currentApp = ref(apps['app-1']);
+                
+                const formatCount = (count) => count >= 1000 ? (count/1000).toFixed(1)+'k' : count.toString();
+                
+                const getButtonText = (status) => {
+                    switch(status) {
+                        case 'not_installed': return '安装'; 
+                        case 'installing': return '安装中...';
+                        case 'installed': return '已安装'; 
+                        case 'has_update': return '更新';
+                        case 'updating': return '更新中...'; 
+                        default: return '安装';
+                    }
+                };
+                
+                const handleUninstall = () => {
+                    currentApp.value.status = 'not_installed';
+                    showUninstallConfirm.value = false;
+                    ElementPlus.ElMessage.success('已卸载');
+                };
+                
+                const installStep = ref('compatibility');
+                const downloadProgress = ref(0);
+                const showResumeHint = ref(false);
+                const installSteps = ref([]);
+                
+                const compatibilityCheck = ref([
+                    { key: 'os', label: '操作系统', value: 'Windows 11', passed: true },
+                    { key: 'plm', label: 'PLM版本', value: 'PLM 2024.2', passed: true },
+                    { key: 'memory', label: '内存', value: '16GB', passed: true },
+                    { key: 'disk', label: '磁盘空间', value: '512GB 可用', passed: true }
+                ]);
+                
+                const compatibilityPassed = computed(() => {
+                    return compatibilityCheck.value.every(item => item.passed);
+                });
+                
+                const canProceed = computed(() => true);
+                
+                const installDialogTitle = computed(() => {
+                    switch(installStep.value) {
+                        case 'compatibility': return '安装前检查';
+                        case 'downloading': return '正在下载';
+                        case 'installing': return '正在安装';
+                        case 'success': return '安装完成';
+                        default: return '安装';
+                    }
+                });
+                
+                const startInstall = () => {
+                    if (!currentApp.value.isFree && !currentApp.value.hasLicense) {
+                        ElementPlus.ElMessage.warning('请先购买授权');
+                        showPurchaseDialog.value = true;
+                        return;
+                    }
+                    
+                    installStep.value = 'compatibility';
+                    downloadProgress.value = 0;
+                    showResumeHint.value = Math.random() > 0.7;
+                    
+                    compatibilityCheck.value = [
+                        { key: 'os', label: '操作系统', value: currentApp.value.requiredOS, passed: true },
+                        { key: 'plm', label: 'PLM版本', value: currentApp.value.requiredPLM, passed: Math.random() > 0.1 },
+                        { key: 'memory', label: '内存', value: currentApp.value.requiredMemory, passed: true },
+                        { key: 'disk', label: '磁盘空间', value: currentApp.value.requiredDisk, passed: true }
+                    ];
+                    
+                    installSteps.value = [
+                        { index: 1, key: 'extract', title: '解压文件', desc: '正在解压安装包...', status: 'pending' },
+                        { index: 2, key: 'config', title: '配置环境', desc: '正在配置运行环境...', status: 'pending' },
+                        { index: 3, key: 'register', title: '注册组件', desc: '正在注册系统组件...', status: 'pending' },
+                        { index: 4, key: 'finish', title: '完成安装', desc: '正在完成最后的配置...', status: 'pending' }
+                    ];
+                    
+                    showInstallDialog.value = true;
+                };
+                
+                const proceedToDownload = () => {
+                    installStep.value = 'downloading';
+                    simulateDownload();
+                };
+                
+                const simulateDownload = () => {
+                    downloadProgress.value = 0;
+                    const interval = setInterval(() => {
+                        downloadProgress.value += Math.floor(Math.random() * 10) + 1;
+                        if (downloadProgress.value >= 100) {
+                            downloadProgress.value = 100;
+                            clearInterval(interval);
+                            setTimeout(() => {
+                                startInstallProcess();
+                            }, 500);
+                        }
+                    }, 200);
+                };
+                
+                const startInstallProcess = () => {
+                    installStep.value = 'installing';
+                    let currentStepIndex = 0;
+                    
+                    const runStep = () => {
+                        if (currentStepIndex >= installSteps.value.length) {
+                            setTimeout(() => {
+                                installStep.value = 'success';
+                                currentApp.value.status = 'installed';
+                            }, 500);
+                            return;
+                        }
+                        
+                        installSteps.value[currentStepIndex].status = 'processing';
+                        
+                        setTimeout(() => {
+                            installSteps.value[currentStepIndex].status = 'success';
+                            currentStepIndex++;
+                            runStep();
+                        }, 800);
+                    };
+                    
+                    runStep();
+                };
+                
+                const closeInstallDialog = () => {
+                    showInstallDialog.value = false;
+                    installStep.value = 'compatibility';
+                    ElementPlus.ElMessage.success(`${currentApp.value.name} 安装成功！`);
+                };
+                
+                const purchaseStep = ref('select');
+                const selectedLicense = ref('personal');
+                const selectedDuration = ref(12);
+                
+                const priceInfo = {
+                    personal: { basePrice: 999 },
+                    enterprise: { basePrice: 4999 }
+                };
+                
+                const durationOptions = [
+                    { months: 3, label: '3个月', multiplier: 0.35, discount: '' },
+                    { months: 6, label: '半年', multiplier: 0.65, discount: '省5%' },
+                    { months: 12, label: '1年', multiplier: 1, discount: '省15%' },
+                    { months: 24, label: '2年', multiplier: 1.8, discount: '省25%' }
+                ];
+                
+                const licenseExpireDate = ref('');
+                
+                const getDurationPrice = (duration) => {
+                    const basePrice = priceInfo[selectedLicense.value].basePrice;
+                    return Math.floor(basePrice * duration.multiplier);
+                };
+                
+                const getDurationLabel = (months) => {
+                    const opt = durationOptions.find(d => d.months === months);
+                    return opt ? opt.label : '';
+                };
+                
+                const totalPrice = computed(() => {
+                    const duration = durationOptions.find(d => d.months === selectedDuration.value);
+                    if (!duration) return 0;
+                    const basePrice = priceInfo[selectedLicense.value].basePrice;
+                    return Math.floor(basePrice * duration.multiplier);
+                });
+                
+                const canPurchase = computed(() => selectedLicense.value && selectedDuration.value);
+                
+                const confirmPurchase = () => {
+                    purchaseStep.value = 'confirm';
+                };
+                
+                const processPayment = () => {
+                    purchaseStep.value = 'processing';
+                    setTimeout(() => {
+                        purchaseStep.value = 'success';
+                        currentApp.value.hasLicense = true;
+                        
+                        const now = new Date();
+                        now.setMonth(now.getMonth() + selectedDuration.value);
+                        licenseExpireDate.value = now.toLocaleDateString('zh-CN');
+                    }, 1500);
+                };
+                
+                const closePurchaseDialog = () => {
+                    showPurchaseDialog.value = false;
+                    purchaseStep.value = 'select';
+                    ElementPlus.ElMessage.success('授权购买成功！');
+                };
+                
+                onMounted(() => {
+                    const params = new URLSearchParams(window.location.search);
+                    const appId = params.get('app') || 'app-1';
+                    if (apps[appId]) currentApp.value = apps[appId];
+                });
+                
+                return {
+                    activeTab,
+                    showUninstallConfirm,
+                    showPurchaseDialog,
+                    showInstallDialog,
+                    currentApp,
+                    formatCount,
+                    getButtonText,
+                    handleUninstall,
+                    installStep,
+                    downloadProgress,
+                    showResumeHint,
+                    installSteps,
+                    compatibilityCheck,
+                    compatibilityPassed,
+                    canProceed,
+                    installDialogTitle,
+                    startInstall,
+                    proceedToDownload,
+                    closeInstallDialog,
+                    purchaseStep,
+                    selectedLicense,
+                    selectedDuration,
+                    priceInfo,
+                    durationOptions,
+                    licenseExpireDate,
+                    getDurationPrice,
+                    getDurationLabel,
+                    totalPrice,
+                    canPurchase,
+                    confirmPurchase,
+                    processPayment,
+                    closePurchaseDialog
+                };
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+</html>

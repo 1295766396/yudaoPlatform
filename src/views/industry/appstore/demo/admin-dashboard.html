@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>应用商店 - 管理后台</title>
+    <link href="https://unpkg.com/element-plus@2.4.4/dist/index.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3.3.13/dist/vue.global.prod.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+        }
+
+        #app {
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 240px;
+            background: #001529;
+            color: #fff;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: #002140;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .sidebar-menu {
+            padding: 10px 0;
+        }
+
+        .sidebar-item {
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-item:hover,
+        .sidebar-item.active {
+            background: #1890ff;
+        }
+
+        .main-content {
+            margin-left: 240px;
+            padding: 24px;
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+            background: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #303133;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #409eff;
+            text-decoration: none;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #303133;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .status-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .app-item {
+            border: 1px solid #ebeef5;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+
+        .app-item:hover {
+            border-color: #409eff;
+            box-shadow: 0 2px 8px rgba(64,158,255,0.12);
+        }
+
+        .app-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .app-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+        }
+
+        .app-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: #909399;
+            margin-bottom: 12px;
+        }
+
+        .version-item {
+            padding: 16px;
+            border: 1px solid #ebeef5;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .version-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .version-number {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+        }
+
+        .version-time {
+            font-size: 13px;
+            color: #909399;
+        }
+
+        .version-log {
+            font-size: 14px;
+            color: #606266;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .upload-area {
+            border: 2px dashed #dcdfe6;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upload-area:hover {
+            border-color: #409eff;
+            background: #f0f9ff;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: #409eff;
+            margin-bottom: 16px;
+        }
+
+        .upload-text {
+            color: #606266;
+            font-size: 14px;
+        }
+
+        .dataset-type-item {
+            background: #f5f7fa;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .dataset-type-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .dataset-type-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+        }
+
+        .tool-assoc-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border: 1px solid #ebeef5;
+        }
+
+        .tool-assoc-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tool-assoc-icon {
+            font-size: 24px;
+        }
+
+        .tool-assoc-details h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #303133;
+            margin-bottom: 2px;
+        }
+
+        .tool-assoc-details p {
+            font-size: 12px;
+            color: #909399;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="sidebar">
+            <div class="sidebar-header">🛠️ 管理后台</div>
+            <div class="sidebar-menu">
+                <div
+                    class="sidebar-item"
+                    :class="{ active: activeTab === 'version' }"
+                    @click="activeTab = 'version'">
+                    <span>📦</span>
+                    <span>版本管理</span>
+                </div>
+                <div
+                    class="sidebar-item"
+                    :class="{ active: activeTab === 'audit' }"
+                    @click="activeTab = 'audit'">
+                    <span>✅</span>
+                    <span>应用审核</span>
+                </div>
+                <div
+                    class="sidebar-item"
+                    :class="{ active: activeTab === 'add' }"
+                    @click="activeTab = 'add'">
+                    <span>➕</span>
+                    <span>新增应用</span>
+                </div>
+                <div
+                    class="sidebar-item"
+                    :class="{ active: activeTab === 'manage' }"
+                    @click="activeTab = 'manage'">
+                    <span>⚙️</span>
+                    <span>应用管理</span>
+                </div>
+                <div
+                    class="sidebar-item"
+                    :class="{ active: activeTab === 'dataset' }"
+                    @click="activeTab = 'dataset'">
+                    <span>🔗</span>
+                    <span>数据集关联</span>
+                </div>
+                <div
+                class="sidebar-item"
+                :class="{ active: activeTab === 'license' }"
+                @click="activeTab = 'license'">
+                <span>🔑</span>
+                <span>授权管理</span>
+            </div>
+            <div
+                class="sidebar-item"
+                :class="{ active: activeTab === 'stats' }"
+                @click="activeTab = 'stats'">
+                <span>📈</span>
+                <span>用量统计</span>
+            </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <a href="app-store-home.html" class="back-btn">
+                <svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                返回应用商店
+            </a>
+
+            <div class="page-header">
+                <h1 class="page-title">{{ getPageTitle() }}</h1>
+            </div>
+
+            <!-- 版本管理 -->
+            <div v-if="activeTab === 'version'">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">版本管理</span>
+                    </div>
+
+                    <el-select v-model="selectedApp" placeholder="选择目标应用" style="width: 300px; margin-bottom: 20px" clearable>
+                        <el-option
+                            v-for="app in apps"
+                            :key="app.id"
+                            :label="app.name"
+                            :value="app.id">
+                        </el-option>
+                    </el-select>
+
+                    <div v-if="selectedApp" style="margin-bottom: 24px">
+                        <h3 style="margin-bottom: 16px; font-size: 16px; color: #303133">历史版本</h3>
+                        <div
+                            v-for="version in getSelectedAppVersions()"
+                            :key="version.id"
+                            class="version-item">
+                            <div class="version-header">
+                                <div>
+                                    <span class="version-number">{{ version.version }}</span>
+                                    <el-tag v-if="version.isLatest" type="success" size="small" style="margin-left: 8px">最新</el-tag>
+                                    <el-tag v-if="version.deployType === 'canary'" type="warning" size="small" style="margin-left: 8px">灰度发布</el-tag>
+                                    <el-tag v-if="version.deployType === 'full'" type="success" size="small" style="margin-left: 8px">全量发布</el-tag>
+                                </div>
+                                <span class="version-time">{{ version.updateTime }}</span>
+                            </div>
+                            <p class="version-log">{{ version.changeLog }}</p>
+                            <div class="version-actions">
+                                <el-button v-if="version.isLatest" type="primary" size="small">查看详情</el-button>
+                                <el-button v-else size="small" @click="rollbackVersion(version)">版本回滚</el-button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="selectedApp">
+                        <h3 style="margin-bottom: 16px; font-size: 16px; color: #303133">发布新版本</h3>
+                        <el-form :model="newVersionForm" label-width="100px" style="max-width: 600px">
+                            <el-form-item label="版本号">
+                                <el-input v-model="newVersionForm.version" placeholder="例如: v2.1.0"></el-input>
+                            </el-form-item>
+                            <el-form-item label="变更说明">
+                                <el-input
+                                    v-model="newVersionForm.changeLog"
+                                    type="textarea"
+                                    :rows="4"
+                                    placeholder="请详细描述本次更新的内容...">
+                                </el-input>
+                            </el-form-item>
+                            <el-form-item label="兼容性要求">
+                                <el-input
+                                    v-model="newVersionForm.compatibility"
+                                    type="textarea"
+                                    :rows="2"
+                                    placeholder="请描述对操作系统、PLM版本的要求...">
+                                </el-input>
+                            </el-form-item>
+                            <el-form-item label="安装包">
+                                <div class="upload-area" @click="uploadFile">
+                                    <div class="upload-icon">📁</div>
+                                    <div class="upload-text">点击或拖拽上传安装包</div>
+                                    <div v-if="newVersionForm.fileName" style="margin-top: 8px; color: #409eff">
+                                        {{ newVersionForm.fileName }}
+                                    </div>
+                                </div>
+                            </el-form-item>
+                            <el-form-item label="发布方式">
+                                <el-radio-group v-model="newVersionForm.deployType">
+                                    <el-radio label="canary">灰度发布</el-radio>
+                                    <el-radio label="full">全量发布</el-radio>
+                                </el-radio-group>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-button type="primary" @click="publishVersion">发布新版本</el-button>
+                                <el-button>取消</el-button>
+                            </el-form-item>
+                        </el-form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 应用审核 -->
+            <div v-if="activeTab === 'audit'">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">待审核应用</span>
+                        <el-tabs v-model="auditTab" size="small">
+                            <el-tab-pane label="待审核" name="pending"></el-tab-pane>
+                            <el-tab-pane label="已批准" name="approved"></el-tab-pane>
+                            <el-tab-pane label="已驳回" name="rejected"></el-tab-pane>
+                        </el-tabs>
+                    </div>
+
+                    <div
+                        v-for="app in getAuditApps()"
+                        :key="app.id"
+                        class="app-item">
+                        <div class="app-item-header">
+                            <span class="app-name">{{ app.name }}</span>
+                            <div>
+                                <el-tag v-if="app.status === 'pending'" type="warning">待审核</el-tag>
+                                <el-tag v-else-if="app.status === 'approved'" type="success">已批准</el-tag>
+                                <el-tag v-else type="danger">已驳回</el-tag>
+                            </div>
+                        </div>
+                        <div class="app-meta">
+                            <span>📦 {{ app.version }}</span>
+                            <span>👤 {{ app.developer }}</span>
+                            <span>📅 {{ app.submitTime }}</span>
+                            <span>💻 {{ app.compatibility }}</span>
+                        </div>
+                        <p style="font-size: 14px; color: #606266; margin-bottom: 12px">{{ app.description }}</p>
+                        <div v-if="app.status === 'pending'" class="table-actions">
+                            <el-button type="primary" @click="openAuditDialog(app)">审核</el-button>
+                        </div>
+                        <div v-else class="table-actions">
+                            <el-button size="small">查看详情</el-button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 新增应用 -->
+            <div v-if="activeTab === 'add'">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">新增应用</span>
+                    </div>
+
+                    <el-form :model="newAppForm" label-width="120px" style="max-width: 700px">
+                        <el-form-item label="应用名称">
+                            <el-input v-model="newAppForm.name" placeholder="请输入应用名称"></el-input>
+                        </el-form-item>
+                        <el-form-item label="应用分类">
+                            <el-select v-model="newAppForm.category" placeholder="请选择分类" style="width: 100%">
+                                <el-option label="CATIA工具" value="CATIA"></el-option>
+                                <el-option label="PDQ质检" value="PDQ"></el-option>
+                                <el-option label="环境配置" value="ENV"></el-option>
+                                <el-option label="数据转换" value="CONVERT"></el-option>
+                                <el-option label="客户端环境" value="CLIENT_ENV"></el-option>
+                                <el-option label="卡提尔CAD" value="CAD_CARTIER"></el-option>
+                                <el-option label="PDK工具" value="PDK"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="应用类型">
+                            <el-radio-group v-model="newAppForm.appType">
+                                <el-radio label="TOOL">工具软件</el-radio>
+                                <el-radio label="PLUGIN">插件</el-radio>
+                            </el-radio-group>
+                        </el-form-item>
+                        <el-form-item label="应用描述">
+                            <el-input
+                                v-model="newAppForm.description"
+                                type="textarea"
+                                :rows="3"
+                                placeholder="请简要描述应用的功能和用途...">
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item label="OS适配">
+                            <el-checkbox-group v-model="newAppForm.os">
+                                <el-checkbox label="WINDOWS">Windows</el-checkbox>
+                                <el-checkbox label="MACOS">macOS</el-checkbox>
+                                <el-checkbox label="LINUX">Linux</el-checkbox>
+                            </el-checkbox-group>
+                        </el-form-item>
+                        <el-form-item label="是否免费">
+                            <el-radio-group v-model="newAppForm.isFree">
+                                <el-radio :label="true">免费</el-radio>
+                                <el-radio :label="false">付费</el-radio>
+                            </el-radio-group>
+                        </el-form-item>
+                        <el-form-item v-if="!newAppForm.isFree" label="价格">
+                            <el-input-number v-model="newAppForm.price" :min="0" :step="10" placeholder="请输入价格"></el-input-number>
+                            <span style="margin-left: 8px; color: #909399">元</span>
+                        </el-form-item>
+                        <el-form-item label="初始版本号">
+                            <el-input v-model="newAppForm.version" placeholder="例如: v1.0.0"></el-input>
+                        </el-form-item>
+                        <el-form-item label="安装包">
+                            <div class="upload-area" @click="uploadAppFile">
+                                <div class="upload-icon">📁</div>
+                                <div class="upload-text">点击或拖拽上传安装包</div>
+                                <div v-if="newAppForm.fileName" style="margin-top: 8px; color: #409eff">
+                                    {{ newAppForm.fileName }}
+                                </div>
+                            </div>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="submitNewApp">提交审核</el-button>
+                            <el-button>保存草稿</el-button>
+                        </el-form-item>
+                    </el-form>
+                </div>
+            </div>
+
+            <!-- 应用管理 -->
+            <div v-if="activeTab === 'manage'">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">应用列表</span>
+                        <el-button type="primary" @click="activeTab = 'add'">+ 新增应用</el-button>
+                    </div>
+
+                    <el-table :data="apps" style="width: 100%">
+                        <el-table-column prop="name" label="应用名称" width="180"></el-table-column>
+                        <el-table-column prop="version" label="版本" width="120"></el-table-column>
+                        <el-table-column prop="installCount" label="安装量" width="100">
+                            <template #default="{ row }">
+                                {{ formatCount(row.installCount) }}
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="status" label="状态" width="120">
+                            <template #default="{ row }">
+                                <el-tag type="success">已发布</el-tag>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="操作">
+                            <template #default="{ row }">
+                                <el-button size="small" @click="editApp(row)">编辑</el-button>
+                                <el-button size="small" type="danger">下架</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+            </div>
+
+            <!-- 数据集关联 -->
+            <div v-if="activeTab === 'dataset'">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">数据集类型-工具关联配置</span>
+                        <el-button type="primary">+ 新增数据集类型</el-button>
+                    </div>
+
+                    <div
+                        v-for="datasetType in datasetTypes"
+                        :key="datasetType.id"
+                        class="dataset-type-item">
+                        <div class="dataset-type-header">
+                            <div>
+                                <span class="dataset-type-name">{{ datasetType.name }}</span>
+                                <el-tag type="info" size="small" style="margin-left: 8px">{{ datasetType.extensions }}</el-tag>
+                            </div>
+                            <div>
+                                <el-button size="small" @click="openAddToolDialog(datasetType)">+ 关联工具</el-button>
+                                <el-button size="small" type="primary" @click="saveDatasetConfig(datasetType)">保存配置</el-button>
+                            </div>
+                        </div>
+                        <p style="font-size: 13px; color: #606266; margin-bottom: 12px">{{ datasetType.description }}</p>
+                        
+                        <div v-if="datasetType.tools.length > 0">
+                            <div
+                                v-for="tool in datasetType.tools"
+                                :key="tool.id"
+                                class="tool-assoc-item">
+                                <div class="tool-assoc-info">
+                                    <span class="tool-assoc-icon">{{ tool.icon }}</span>
+                                    <div class="tool-assoc-details">
+                                        <h4>
+                                            {{ tool.name }}
+                                            <el-tag v-if="tool.isDefault" type="success" size="small" style="margin-left: 8px">默认打开</el-tag>
+                                        </h4>
+                                        <p>优先级: {{ tool.priority }} | 支持版本: {{ tool.supportVersion }}</p>
+                                    </div>
+                                </div>
+                                <div class="table-actions">
+                                    <el-button size="small" @click="setDefaultTool(datasetType, tool)" v-if="!tool.isDefault">设为默认</el-button>
+                                    <el-button size="small" type="danger" @click="removeToolAssoc(datasetType, tool)">解除关联</el-button>
+                                </div>
+                            </div>
+                        </div>
+                        <el-empty v-else description="暂无关联工具" style="padding: 20px"></el-empty>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 授权管理 -->
+            <div v-if="activeTab === 'license'">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">授权列表</span>
+                        <el-button type="primary" @click="openLicenseDialog()">+ 新增授权</el-button>
+                    </div>
+
+                    <el-table :data="licenses" style="width: 100%">
+                        <el-table-column prop="appName" label="应用" width="200"></el-table-column>
+                        <el-table-column prop="licensee" label="用户/企业" width="200"></el-table-column>
+                        <el-table-column prop="licenseType" label="类型" width="120">
+                            <template #default="{ row }">
+                                <el-tag v-if="row.licenseType === 'personal'" type="info">个人</el-tag>
+                                <el-tag v-else-if="row.licenseType === 'enterprise'" type="primary">企业</el-tag>
+                                <el-tag v-else type="warning">试用</el-tag>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="status" label="状态" width="120">
+                            <template #default="{ row }">
+                                <el-tag v-if="row.status === 'active'" type="success">有效</el-tag>
+                                <el-tag v-else-if="row.status === 'expired'" type="danger">已过期</el-tag>
+                                <el-tag v-else type="info">已回收</el-tag>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="有效期" width="220">
+                            <template #default="{ row }">
+                                <div>
+                                    <div style="font-size: 13px">{{ row.startDate }} 至 {{ row.endDate }}</div>
+                                    <el-tag v-if="isExpiringSoon(row)" type="warning" size="small" style="margin-top: 4px">
+                                        ⚠️ 即将到期
+                                    </el-tag>
+                                </div>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="操作">
+                            <template #default="{ row }">
+                                <el-button size="small" @click="editLicense(row)">编辑</el-button>
+                                <el-button size="small" type="warning" @click="extendLicense(row)" v-if="row.status === 'active'">延期</el-button>
+                                <el-button size="small" type="danger" @click="revokeLicense(row)" v-if="row.status === 'active'">回收</el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+            </div>
+
+            <!-- 用量统计 -->
+            <div v-if="activeTab === 'stats'">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title">用量统计</span>
+                        <div class="table-actions">
+                            <el-select v-model="statsTimeRange" placeholder="时间范围" style="width: 120px; margin-right: 10px" @change="updateCharts">
+                                <el-option label="今日" value="day"></el-option>
+                                <el-option label="本周" value="week"></el-option>
+                                <el-option label="本月" value="month"></el-option>
+                            </el-select>
+                            <el-select v-model="statsAppFilter" placeholder="选择应用" style="width: 200px; margin-right: 10px" clearable @change="updateCharts">
+                                <el-option label="全部应用" value="all"></el-option>
+                                <el-option
+                                    v-for="app in apps"
+                                    :key="app.id"
+                                    :label="app.name"
+                                    :value="app.id">
+                                </el-option>
+                            </el-select>
+                            <el-button type="primary" @click="exportExcel">📥 导出报表</el-button>
+                        </div>
+                    </div>
+
+                    <!-- 统计卡片 -->
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px">
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px; border-radius: 12px; color: white">
+                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px">总安装量</div>
+                            <div style="font-size: 32px; font-weight: 700">{{ totalInstalls }}</div>
+                            <div style="font-size: 12px; margin-top: 8px; opacity: 0.8">↑ 12.5% 较上周</div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 24px; border-radius: 12px; color: white">
+                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px">活跃用户</div>
+                            <div style="font-size: 32px; font-weight: 700">{{ activeUsers }}</div>
+                            <div style="font-size: 12px; margin-top: 8px; opacity: 0.8">↑ 8.3% 较上周</div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); padding: 24px; border-radius: 12px; color: white">
+                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px">总使用时长</div>
+                            <div style="font-size: 32px; font-weight: 700">{{ totalUsageHours }}h</div>
+                            <div style="font-size: 12px; margin-top: 8px; opacity: 0.8">↑ 15.2% 较上周</div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); padding: 24px; border-radius: 12px; color: white">
+                            <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px">平均使用时长</div>
+                            <div style="font-size: 32px; font-weight: 700">{{ avgUsageMinutes }}min</div>
+                            <div style="font-size: 12px; margin-top: 8px; opacity: 0.8">↑ 3.1% 较上周</div>
+                        </div>
+                    </div>
+
+                    <!-- 图表区域 -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px">
+                        <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.04)">
+                            <h4 style="margin-bottom: 16px; color: #303133">安装趋势</h4>
+                            <div ref="installChartRef" style="height: 300px"></div>
+                        </div>
+                        <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.04)">
+                            <h4 style="margin-bottom: 16px; color: #303133">活跃用户</h4>
+                            <div ref="activeUserChartRef" style="height: 300px"></div>
+                        </div>
+                    </div>
+
+                    <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); margin-bottom: 24px">
+                        <h4 style="margin-bottom: 16px; color: #303133">使用时长统计</h4>
+                        <div ref="usageChartRef" style="height: 300px"></div>
+                    </div>
+
+                    <!-- 数据表格 -->
+                    <h4 style="margin-bottom: 16px; color: #303133">详细数据</h4>
+                    <el-table :data="statsTableData" style="width: 100%" border>
+                        <el-table-column prop="date" label="日期" width="120"></el-table-column>
+                        <el-table-column prop="appName" label="应用名称" width="200"></el-table-column>
+                        <el-table-column prop="installs" label="新增安装" width="100">
+                            <template #default="{ row }">
+                                <span style="color: #67c23a">+{{ row.installs }}</span>
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="activeUsers" label="活跃用户" width="100"></el-table-column>
+                        <el-table-column prop="usageHours" label="使用时长(h)" width="120"></el-table-column>
+                        <el-table-column prop="avgUsageMinutes" label="人均使用(min)" width="140"></el-table-column>
+                        <el-table-column prop="retention" label="次日留存" width="100">
+                            <template #default="{ row }">
+                                <el-tag type="success" size="small">{{ row.retention }}%</el-tag>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 审核弹窗 -->
+        <el-dialog v-model="showAuditDialog" title="审核应用" width="600px">
+            <div v-if="currentAuditApp">
+                <h3 style="margin-bottom: 12px; font-size: 18px">{{ currentAuditApp.name }}</h3>
+                <p style="color: #606266; margin-bottom: 16px">{{ currentAuditApp.description }}</p>
+                <div style="background: #f5f7fa; padding: 16px; border-radius: 6px; margin-bottom: 16px">
+                    <div style="margin-bottom: 8px"><strong>版本:</strong> {{ currentAuditApp.version }}</div>
+                    <div style="margin-bottom: 8px"><strong>开发者:</strong> {{ currentAuditApp.developer }}</div>
+                    <div style="margin-bottom: 8px"><strong>兼容性:</strong> {{ currentAuditApp.compatibility }}</div>
+                    <div><strong>提交时间:</strong> {{ currentAuditApp.submitTime }}</div>
+                </div>
+                <el-form-item label="审核意见">
+                    <el-input
+                        v-model="auditComment"
+                        type="textarea"
+                        :rows="3"
+                        placeholder="请填写审核意见...">
+                    </el-input>
+                </el-form-item>
+            </div>
+            <template #footer>
+                <el-button @click="showAuditDialog = false">取消</el-button>
+                <el-button type="danger" @click="rejectApp">驳回</el-button>
+                <el-button type="primary" @click="approveApp">批准上架</el-button>
+            </template>
+        </el-dialog>
+
+        <!-- 添加工具关联弹窗 -->
+        <el-dialog v-model="showAddToolDialog" title="关联工具" width="550px">
+            <div v-if="currentDatasetType">
+                <h3 style="margin-bottom: 16px; font-size: 16px">为「{{ currentDatasetType.name }}」选择要关联的工具</h3>
+                <div style="max-height: 300px; overflow-y: auto">
+                    <div
+                        v-for="app in availableApps"
+                        :key="app.id"
+                        style="border: 1px solid #ebeef5; border-radius: 8px; padding: 12px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s"
+                        :style="{ borderColor: selectedToolsForAssoc.includes(app.id) ? '#409eff' : '#ebeef5', background: selectedToolsForAssoc.includes(app.id) ? '#f0f9ff' : 'white' }"
+                        @click="toggleToolSelection(app.id)">
+                        <div style="display: flex; align-items: center; justify-content: space-between">
+                            <div style="display: flex; align-items: center; gap: 12px">
+                                <span style="font-size: 28px">{{ app.icon || '🔧' }}</span>
+                                <div>
+                                    <div style="font-weight: 600; color: #303133">{{ app.name }}</div>
+                                    <div style="font-size: 13px; color: #909399; margin-top: 4px">{{ app.description }}</div>
+                                    <div style="font-size: 12px; color: #606266; margin-top: 6px">
+                                        <el-tag size="small" type="info" style="margin-right: 8px">{{ app.version }}</el-tag>
+                                        <el-tag size="small">{{ app.category }}</el-tag>
+                                    </div>
+                                </div>
+                            </div>
+                            <svg v-if="selectedToolsForAssoc.includes(app.id)" style="width:24px;height:24px;color:#409eff" viewBox="0 0 24 24" fill="currentColor">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2" fill="none"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <template #footer>
+                <el-button @click="showAddToolDialog = false">取消</el-button>
+                <el-button type="primary" @click="confirmAddToolAssoc">确认关联</el-button>
+            </template>
+        </el-dialog>
+
+        <!-- 授权管理弹窗 -->
+        <el-dialog v-model="showLicenseDialog" :title="isEditLicense ? '编辑授权' : '新增授权'" width="600px">
+            <el-form :model="licenseForm" label-width="120px">
+                <el-form-item label="选择应用">
+                    <el-select v-model="licenseForm.appId" placeholder="请选择应用" style="width: 100%">
+                        <el-option
+                            v-for="app in apps"
+                            :key="app.id"
+                            :label="app.name"
+                            :value="app.id">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="授权对象">
+                    <el-input v-model="licenseForm.licensee" placeholder="请输入用户或企业名称"></el-input>
+                </el-form-item>
+                <el-form-item label="授权类型">
+                    <el-radio-group v-model="licenseForm.licenseType">
+                        <el-radio label="personal">个人</el-radio>
+                        <el-radio label="enterprise">企业</el-radio>
+                        <el-radio label="trial">试用</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="开始日期">
+                    <el-date-picker
+                        v-model="licenseForm.startDate"
+                        type="date"
+                        placeholder="选择开始日期"
+                        style="width: 100%"
+                        value-format="YYYY-MM-DD">
+                    </el-date-picker>
+                </el-form-item>
+                <el-form-item label="结束日期">
+                    <el-date-picker
+                        v-model="licenseForm.endDate"
+                        type="date"
+                        placeholder="选择结束日期"
+                        style="width: 100%"
+                        value-format="YYYY-MM-DD">
+                    </el-date-picker>
+                </el-form-item>
+                <el-form-item label="备注">
+                    <el-input
+                        v-model="licenseForm.remark"
+                        type="textarea"
+                        :rows="3"
+                        placeholder="请输入备注信息">
+                    </el-input>
+                </el-form-item>
+            </el-form>
+            <template #footer>
+                <el-button @click="showLicenseDialog = false">取消</el-button>
+                <el-button type="primary" @click="saveLicense">保存</el-button>
+            </template>
+        </el-dialog>
+
+        <!-- 授权延期弹窗 -->
+        <el-dialog v-model="showExtendDialog" title="授权延期" width="500px">
+            <div v-if="currentLicense">
+                <div style="margin-bottom: 16px">
+                    <strong>应用:</strong> {{ currentLicense.appName }}
+                </div>
+                <div style="margin-bottom: 16px">
+                    <strong>授权对象:</strong> {{ currentLicense.licensee }}
+                </div>
+                <div style="margin-bottom: 16px">
+                    <strong>当前到期日期:</strong> {{ currentLicense.endDate }}
+                </div>
+                <el-form label-width="120px">
+                    <el-form-item label="新到期日期">
+                        <el-date-picker
+                            v-model="newEndDate"
+                            type="date"
+                            placeholder="选择新的到期日期"
+                            style="width: 100%"
+                            value-format="YYYY-MM-DD">
+                        </el-date-picker>
+                    </el-form-item>
+                </el-form>
+            </div>
+            <template #footer>
+                <el-button @click="showExtendDialog = false">取消</el-button>
+                <el-button type="primary" @click="confirmExtend">确认延期</el-button>
+            </template>
+        </el-dialog>
+    </div>
+
+    <script>
+        const { createApp, ref, computed, watch, onMounted } = Vue;
+        createApp({
+            setup() {
+                const activeTab = ref('version');
+                const selectedApp = ref('');
+                const auditTab = ref('pending');
+                const showAuditDialog = ref(false);
+                const currentAuditApp = ref(null);
+                const auditComment = ref('');
+                const showAddToolDialog = ref(false);
+                const currentDatasetType = ref(null);
+                const selectedToolsForAssoc = ref([]);
+                const showLicenseDialog = ref(false);
+                const showExtendDialog = ref(false);
+                const isEditLicense = ref(false);
+                const currentLicense = ref(null);
+                const newEndDate = ref('');
+                const editingLicenseId = ref(null);
+
+                const apps = ref([
+                    {
+                        id: 'app-1',
+                        name: 'CATIA集成客户端',
+                        version: 'v2.1.0',
+                        description: 'CATIA V5/V6与平台深度集成，文件一键打开/保存回传',
+                        category: 'CATIA',
+                        appType: 'TOOL',
+                        isOfficial: true,
+                        isFree: false,
+                        price: 999,
+                        installCount: 1200,
+                        rating: 4.8,
+                        author: '官方开发组',
+                        updateTime: '2026-05-01',
+                        os: ['WINDOWS'],
+                        status: 'published',
+                        icon: '🔧'
+                    },
+                    {
+                        id: 'app-2',
+                        name: 'PDQ自动检测工具',
+                        version: 'v3.2.1',
+                        description: '自动化产品数据质量检查，支持自定义规则',
+                        category: 'PDQ',
+                        appType: 'TOOL',
+                        isOfficial: true,
+                        isFree: true,
+                        price: 0,
+                        installCount: 2400,
+                        rating: 4.9,
+                        author: '官方开发组',
+                        updateTime: '2026-05-10',
+                        os: ['WINDOWS', 'LINUX'],
+                        status: 'published',
+                        icon: '📊'
+                    },
+                    {
+                        id: 'app-3',
+                        name: 'CATIA环境配置器',
+                        version: 'v1.5.0',
+                        description: '统一管理CATIA运行环境、许可证配置',
+                        category: 'ENV',
+                        appType: 'TOOL',
+                        isOfficial: true,
+                        isFree: true,
+                        price: 0,
+                        installCount: 876,
+                        rating: 4.7,
+                        author: '官方开发组',
+                        updateTime: '2026-04-20',
+                        os: ['WINDOWS'],
+                        status: 'published',
+                        icon: '⚙️'
+                    }
+                ]);
+
+                const datasetTypes = ref([
+                    {
+                        id: 'dt-1',
+                        name: 'CATIA三维模型',
+                        extensions: '.CATPart, .CATProduct',
+                        description: 'CATIA V5/V6三维模型文件',
+                        tools: [
+                            { id: 'app-1', name: 'CATIA集成客户端', icon: '🔧', isDefault: true, priority: 1, supportVersion: 'v2.0.0+'}
+                        ]
+                    },
+                    {
+                        id: 'dt-2',
+                        name: 'PDQ质检文件',
+                        extensions: '.pdq, .prj',
+                        description: '产品数据质量检查文件',
+                        tools: [
+                            { id: 'app-2', name: 'PDQ自动检测工具', icon: '📊', isDefault: true, priority: 1, supportVersion: 'v3.0.0+'}
+                        ]
+                    },
+                    {
+                        id: 'dt-3',
+                        name: '通用三维模型',
+                        extensions: '.stl, .obj, .step',
+                        description: '通用格式三维模型文件',
+                        tools: []
+                    }
+                ]);
+
+                const versions = ref({
+                    'app-1': [
+                        {
+                            id: 'v1',
+                            version: 'v2.1.0',
+                            updateTime: '2026-05-01',
+                            changeLog: '新增V6 R33版本支持；优化文件同步速度；修复已知问题',
+                            isLatest: true,
+                            deployType: 'full'
+                        },
+                        {
+                            id: 'v2',
+                            version: 'v2.0.0',
+                            updateTime: '2026-03-15',
+                            changeLog: '重构核心架构，性能提升50%；新增BOM自动提取功能',
+                            isLatest: false,
+                            deployType: 'full'
+                        },
+                        {
+                            id: 'v3',
+                            version: 'v1.9.0',
+                            updateTime: '2026-02-20',
+                            changeLog: '修复V5R29兼容性问题；优化用户体验',
+                            isLatest: false,
+                            deployType: 'full'
+                        }
+                    ],
+                    'app-2': [
+                        {
+                            id: 'v1',
+                            version: 'v3.2.1',
+                            updateTime: '2026-05-10',
+                            changeLog: '修复规则编辑器问题；优化检查性能',
+                            isLatest: true,
+                            deployType: 'full'
+                        },
+                        {
+                            id: 'v2',
+                            version: 'v3.2.0',
+                            updateTime: '2026-04-28',
+                            changeLog: '新增20+检查规则；支持自定义规则',
+                            isLatest: false,
+                            deployType: 'canary'
+                        }
+                    ],
+                    'app-3': [
+                        {
+                            id: 'v1',
+                            version: 'v1.5.0',
+                            updateTime: '2026-04-20',
+                            changeLog: '新增许可证批量管理功能；优化UI布局',
+                            isLatest: true,
+                            deployType: 'full'
+                        }
+                    ]
+                });
+
+                const auditApps = ref([
+                    {
+                        id: 'audit-1',
+                        name: '轻量化模型查看器',
+                        version: 'v1.2.0',
+                        developer: '第三方团队',
+                        submitTime: '2026-05-15',
+                        compatibility: 'Windows 10+, macOS 11+',
+                        description: '无需CATIA环境直接查看三维模型',
+                        status: 'pending'
+                    },
+                    {
+                        id: 'audit-2',
+                        name: '版本管理器',
+                        version: 'v1.0.0',
+                        developer: '第三方团队',
+                        submitTime: '2026-05-12',
+                        compatibility: 'Windows 10+',
+                        description: 'CATIA文件版本管理与备份',
+                        status: 'pending'
+                    }
+                ]);
+
+                const newVersionForm = ref({
+                    version: '',
+                    changeLog: '',
+                    compatibility: '',
+                    fileName: '',
+                    deployType: 'full'
+                });
+
+                const newAppForm = ref({
+                    name: '',
+                    category: '',
+                    appType: 'TOOL',
+                    description: '',
+                    os: [],
+                    isFree: true,
+                    price: 0,
+                    version: '',
+                    fileName: ''
+                });
+
+                const licenseForm = ref({
+                    appId: '',
+                    licensee: '',
+                    licenseType: 'personal',
+                    startDate: '',
+                    endDate: '',
+                    remark: ''
+                });
+
+                const licenses = ref([
+                    {
+                        id: 'lic-1',
+                        appId: 'app-1',
+                        appName: 'CATIA集成客户端',
+                        licensee: '张三',
+                        licenseType: 'personal',
+                        status: 'active',
+                        startDate: '2026-01-01',
+                        endDate: '2026-12-31',
+                        remark: ''
+                    },
+                    {
+                        id: 'lic-2',
+                        appId: 'app-1',
+                        appName: 'CATIA集成客户端',
+                        licensee: '某科技有限公司',
+                        licenseType: 'enterprise',
+                        status: 'active',
+                        startDate: '2026-03-01',
+                        endDate: '2026-06-15',
+                        remark: '企业版授权'
+                    },
+                    {
+                        id: 'lic-3',
+                        appId: 'app-2',
+                        appName: 'PDQ自动检测工具',
+                        licensee: '李四',
+                        licenseType: 'trial',
+                        status: 'expired',
+                        startDate: '2026-02-01',
+                        endDate: '2026-03-01',
+                        remark: '试用期已过'
+                    }
+                ]);
+
+                const getPageTitle = () => {
+                    const titles = {
+                        version: '版本管理',
+                        audit: '应用审核',
+                        add: '新增应用',
+                        manage: '应用管理',
+                        dataset: '数据集关联',
+                        license: '授权管理',
+                        stats: '用量统计'
+                    };
+                    return titles[activeTab.value] || '管理后台';
+                };
+
+                const getToday = () => {
+                    const today = new Date();
+                    const year = today.getFullYear();
+                    const month = String(today.getMonth() + 1).padStart(2, '0');
+                    const day = String(today.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                };
+
+                const isExpiringSoon = (license) => {
+                    if (license.status !== 'active') return false;
+                    const today = new Date();
+                    const endDate = new Date(license.endDate);
+                    const diffDays = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+                    return diffDays > 0 && diffDays <= 30;
+                };
+
+                const openLicenseDialog = (license = null) => {
+                    isEditLicense.value = !!license;
+                    if (license) {
+                        editingLicenseId.value = license.id;
+                        licenseForm.value = {
+                            appId: license.appId,
+                            licensee: license.licensee,
+                            licenseType: license.licenseType,
+                            startDate: license.startDate,
+                            endDate: license.endDate,
+                            remark: license.remark
+                        };
+                    } else {
+                        editingLicenseId.value = null;
+                        licenseForm.value = {
+                            appId: '',
+                            licensee: '',
+                            licenseType: 'personal',
+                            startDate: getToday(),
+                            endDate: '',
+                            remark: ''
+                        };
+                    }
+                    showLicenseDialog.value = true;
+                };
+
+                const editLicense = (license) => {
+                    openLicenseDialog(license);
+                };
+
+                const saveLicense = () => {
+                    if (!licenseForm.value.appId || !licenseForm.value.licensee || !licenseForm.value.startDate || !licenseForm.value.endDate) {
+                        ElementPlus.ElMessage.warning('请填写完整信息！');
+                        return;
+                    }
+                    const app = apps.value.find(a => a.id === licenseForm.value.appId);
+                    if (isEditLicense.value) {
+                        const index = licenses.value.findIndex(l => l.id === editingLicenseId.value);
+                        if (index > -1) {
+                            licenses.value[index] = {
+                                ...licenses.value[index],
+                                ...licenseForm.value,
+                                appName: app ? app.name : ''
+                            };
+                        }
+                        ElementPlus.ElMessage.success('授权更新成功！');
+                    } else {
+                        const newLicense = {
+                            id: `lic-${Date.now()}`,
+                            ...licenseForm.value,
+                            appName: app ? app.name : '',
+                            status: 'active'
+                        };
+                        licenses.value.push(newLicense);
+                        ElementPlus.ElMessage.success('授权创建成功！');
+                    }
+                    showLicenseDialog.value = false;
+                };
+
+                const extendLicense = (license) => {
+                    currentLicense.value = license;
+                    newEndDate.value = '';
+                    showExtendDialog.value = true;
+                };
+
+                const confirmExtend = () => {
+                    if (!newEndDate.value) {
+                        ElementPlus.ElMessage.warning('请选择新的到期日期！');
+                        return;
+                    }
+                    const index = licenses.value.findIndex(l => l.id === currentLicense.value.id);
+                    if (index > -1) {
+                        licenses.value[index].endDate = newEndDate.value;
+                        ElementPlus.ElMessage.success('授权延期成功！');
+                    }
+                    showExtendDialog.value = false;
+                };
+
+                const revokeLicense = (license) => {
+                    ElementPlus.ElMessageBox.confirm(
+                        `确定要回收「${license.licensee}」的「${license.appName}」授权吗？`,
+                        '回收授权',
+                        {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'warning'
+                        }
+                    ).then(() => {
+                        const index = licenses.value.findIndex(l => l.id === license.id);
+                        if (index > -1) {
+                            licenses.value[index].status = 'revoked';
+                            ElementPlus.ElMessage.success('授权已回收！');
+                        }
+                    }).catch(() => {});
+                };
+
+                const getSelectedAppVersions = () => {
+                    return versions.value[selectedApp.value] || [];
+                };
+
+                const getAuditApps = () => {
+                    if (auditTab.value === 'pending') {
+                        return auditApps.value.filter(a => a.status === 'pending');
+                    } else if (auditTab.value === 'approved') {
+                        return auditApps.value.filter(a => a.status === 'approved');
+                    }
+                    return auditApps.value.filter(a => a.status === 'rejected');
+                };
+
+                const formatCount = (count) => {
+                    return count >= 1000 ? (count / 1000).toFixed(1) + 'k' : count.toString();
+                };
+
+                const uploadFile = () => {
+                    newVersionForm.value.fileName = 'catia-integration-v2.2.0.exe';
+                    ElementPlus.ElMessage.success('安装包上传成功！');
+                };
+
+                const uploadAppFile = () => {
+                    newAppForm.value.fileName = 'new-app-v1.0.0.exe';
+                    ElementPlus.ElMessage.success('安装包上传成功！');
+                };
+
+                const publishVersion = () => {
+                    if (!newVersionForm.value.version || !newVersionForm.value.changeLog || !newVersionForm.value.fileName) {
+                        ElementPlus.ElMessage.warning('请填写完整信息！');
+                        return;
+                    }
+                    ElementPlus.ElMessage.success('版本发布成功！用户将收到升级提示。');
+                    newVersionForm.value = {
+                        version: '',
+                        changeLog: '',
+                        compatibility: '',
+                        fileName: '',
+                        deployType: 'full'
+                    };
+                };
+
+                const rollbackVersion = (version) => {
+                    ElementPlus.ElMessageBox.confirm(
+                        `确定要回滚到 ${version.version} 吗？`,
+                        '版本回滚',
+                        {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'warning'
+                        }
+                    ).then(() => {
+                        ElementPlus.ElMessage.success('版本回滚成功！');
+                    }).catch(() => {});
+                };
+
+                const openAuditDialog = (app) => {
+                    currentAuditApp.value = app;
+                    auditComment.value = '';
+                    showAuditDialog.value = true;
+                };
+
+                const approveApp = () => {
+                    if (currentAuditApp.value) {
+                        currentAuditApp.value.status = 'approved';
+                        showAuditDialog.value = false;
+                        ElementPlus.ElMessage.success('应用批准上架成功！');
+                    }
+                };
+
+                const rejectApp = () => {
+                    if (currentAuditApp.value) {
+                        currentAuditApp.value.status = 'rejected';
+                        showAuditDialog.value = false;
+                        ElementPlus.ElMessage.success('已驳回该应用！');
+                    }
+                };
+
+                const submitNewApp = () => {
+                    if (!newAppForm.value.name || !newAppForm.value.category || !newAppForm.value.version) {
+                        ElementPlus.ElMessage.warning('请填写完整信息！');
+                        return;
+                    }
+                    ElementPlus.ElMessage.success('应用提交审核成功！');
+                    newAppForm.value = {
+                        name: '',
+                        category: '',
+                        appType: 'TOOL',
+                        description: '',
+                        os: [],
+                        isFree: true,
+                        price: 0,
+                        version: '',
+                        fileName: ''
+                    };
+                };
+
+                const editApp = (app) => {
+                    ElementPlus.ElMessage.info('编辑功能开发中...');
+                };
+
+                const openAddToolDialog = (datasetType) => {
+                    currentDatasetType.value = datasetType;
+                    selectedToolsForAssoc.value = [];
+                    showAddToolDialog.value = true;
+                };
+
+                const availableApps = computed(() => {
+                    if (!currentDatasetType.value) return [];
+                    const existingToolIds = currentDatasetType.value.tools.map(t => t.id);
+                    return apps.value.filter(app => !existingToolIds.includes(app.id));
+                });
+
+                const toggleToolSelection = (appId) => {
+                    const index = selectedToolsForAssoc.value.indexOf(appId);
+                    if (index > -1) {
+                        selectedToolsForAssoc.value.splice(index, 1);
+                    } else {
+                        selectedToolsForAssoc.value.push(appId);
+                    }
+                };
+
+                const confirmAddToolAssoc = () => {
+                    if (!currentDatasetType.value || selectedToolsForAssoc.value.length === 0) {
+                        ElementPlus.ElMessage.warning('请选择要关联的工具！');
+                        return;
+                    }
+                    
+                    selectedToolsForAssoc.value.forEach(appId => {
+                        const app = apps.value.find(a => a.id === appId);
+                        if (app) {
+                            const isFirst = currentDatasetType.value.tools.length === 0;
+                            currentDatasetType.value.tools.push({
+                                id: app.id,
+                                name: app.name,
+                                icon: app.icon,
+                                isDefault: isFirst,
+                                priority: currentDatasetType.value.tools.length + 1,
+                                supportVersion: app.version
+                            });
+                        }
+                    });
+                    
+                    ElementPlus.ElMessage.success('工具关联成功！');
+                    showAddToolDialog.value = false;
+                };
+
+                const setDefaultTool = (datasetType, tool) => {
+                    datasetType.tools.forEach(t => t.isDefault = false);
+                    tool.isDefault = true;
+                    ElementPlus.ElMessage.success(`已将「${tool.name}」设为默认打开工具！`);
+                };
+
+                const removeToolAssoc = (datasetType, tool) => {
+                    ElementPlus.ElMessageBox.confirm(
+                        `确定要解除与「${tool.name}」的关联吗？`,
+                        '解除关联',
+                        {
+                            confirmButtonText: '确定',
+                            cancelButtonText: '取消',
+                            type: 'warning'
+                        }
+                    ).then(() => {
+                        const index = datasetType.tools.findIndex(t => t.id === tool.id);
+                        if (index > -1) {
+                            datasetType.tools.splice(index, 1);
+                            ElementPlus.ElMessage.success('已解除关联！');
+                        }
+                    }).catch(() => {});
+                };
+
+                const saveDatasetConfig = (datasetType) => {
+                    ElementPlus.ElMessage.success('配置保存成功！');
+                };
+
+                // 用量统计相关数据
+                const statsTimeRange = ref('week');
+                const statsAppFilter = ref('all');
+                const installChartRef = ref(null);
+                const activeUserChartRef = ref(null);
+                const usageChartRef = ref(null);
+                let installChart = null;
+                let activeUserChart = null;
+                let usageChart = null;
+
+                const totalInstalls = ref('4.5k');
+                const activeUsers = ref('2.1k');
+                const totalUsageHours = ref('12.5k');
+                const avgUsageMinutes = ref('45');
+
+                const statsTableData = ref([
+                    { date: '05-10', appName: 'CATIA集成客户端', installs: 128, activeUsers: 856, usageHours: 1245, avgUsageMinutes: 48, retention: 82 },
+                    { date: '05-10', appName: 'PDQ自动检测工具', installs: 256, activeUsers: 1245, usageHours: 896, avgUsageMinutes: 38, retention: 78 },
+                    { date: '05-10', appName: 'CATIA环境配置器', installs: 89, activeUsers: 567, usageHours: 567, avgUsageMinutes: 42, retention: 85 },
+                    { date: '05-11', appName: 'CATIA集成客户端', installs: 145, activeUsers: 923, usageHours: 1324, avgUsageMinutes: 52, retention: 84 },
+                    { date: '05-11', appName: 'PDQ自动检测工具', installs: 289, activeUsers: 1356, usageHours: 987, avgUsageMinutes: 40, retention: 79 },
+                    { date: '05-11', appName: 'CATIA环境配置器', installs: 95, activeUsers: 612, usageHours: 623, avgUsageMinutes: 44, retention: 86 },
+                    { date: '05-12', appName: 'CATIA集成客户端', installs: 132, activeUsers: 889, usageHours: 1289, avgUsageMinutes: 50, retention: 83 },
+                    { date: '05-12', appName: 'PDQ自动检测工具', installs: 267, activeUsers: 1289, usageHours: 923, avgUsageMinutes: 39, retention: 77 }
+                ]);
+
+                const initCharts = () => {
+                    setTimeout(() => {
+                        if (installChartRef.value) {
+                            installChart = echarts.init(installChartRef.value);
+                            const installOption = {
+                                tooltip: { trigger: 'axis' },
+                                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                                xAxis: {
+                                    type: 'category',
+                                    boundaryGap: false,
+                                    data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+                                },
+                                yAxis: { type: 'value' },
+                                series: [{
+                                    name: '安装量',
+                                    type: 'line',
+                                    smooth: true,
+                                    areaStyle: { opacity: 0.3 },
+                                    data: [120, 132, 101, 134, 90, 230, 210],
+                                    itemStyle: { color: '#667eea' },
+                                    areaStyle: { color: 'rgba(102, 126, 234, 0.2)' }
+                                }]
+                            };
+                            installChart.setOption(installOption);
+                        }
+
+                        if (activeUserChartRef.value) {
+                            activeUserChart = echarts.init(activeUserChartRef.value);
+                            const activeUserOption = {
+                                tooltip: { trigger: 'axis' },
+                                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                                xAxis: {
+                                    type: 'category',
+                                    boundaryGap: false,
+                                    data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+                                },
+                                yAxis: { type: 'value' },
+                                series: [{
+                                    name: '活跃用户',
+                                    type: 'line',
+                                    smooth: true,
+                                    areaStyle: { opacity: 0.3 },
+                                    data: [220, 182, 191, 234, 290, 330, 310],
+                                    itemStyle: { color: '#f5576c' },
+                                    areaStyle: { color: 'rgba(245, 87, 108, 0.2)' }
+                                }]
+                            };
+                            activeUserChart.setOption(activeUserOption);
+                        }
+
+                        if (usageChartRef.value) {
+                            usageChart = echarts.init(usageChartRef.value);
+                            const usageOption = {
+                                tooltip: { trigger: 'axis' },
+                                legend: { data: ['CATIA集成客户端', 'PDQ自动检测工具', 'CATIA环境配置器'] },
+                                grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
+                                xAxis: {
+                                    type: 'category',
+                                    data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+                                },
+                                yAxis: { type: 'value' },
+                                series: [
+                                    {
+                                        name: 'CATIA集成客户端',
+                                        type: 'bar',
+                                        stack: 'total',
+                                        data: [320, 302, 341, 374, 390, 450, 420],
+                                        itemStyle: { color: '#667eea' }
+                                    },
+                                    {
+                                        name: 'PDQ自动检测工具',
+                                        type: 'bar',
+                                        stack: 'total',
+                                        data: [220, 182, 191, 234, 290, 330, 310],
+                                        itemStyle: { color: '#f5576c' }
+                                    },
+                                    {
+                                        name: 'CATIA环境配置器',
+                                        type: 'bar',
+                                        stack: 'total',
+                                        data: [150, 232, 201, 154, 190, 330, 410],
+                                        itemStyle: { color: '#4facfe' }
+                                    }
+                                ]
+                            };
+                            usageChart.setOption(usageOption);
+                        }
+
+                        window.addEventListener('resize', () => {
+                            installChart?.resize();
+                            activeUserChart?.resize();
+                            usageChart?.resize();
+                        });
+                    }, 100);
+                };
+
+                const updateCharts = () => {
+                    ElementPlus.ElMessage.success('数据已更新！');
+                };
+
+                const exportExcel = () => {
+                    ElementPlus.ElMessage.success('报表导出成功！文件已保存到本地。');
+                };
+
+                // 监听 activeTab 变化，初始化图表
+                watch(activeTab, (newTab) => {
+                    if (newTab === 'stats') {
+                        initCharts();
+                    }
+                });
+
+                onMounted(() => {
+                    if (activeTab.value === 'stats') {
+                        initCharts();
+                    }
+                });
+
+                return {
+                    activeTab,
+                    selectedApp,
+                    auditTab,
+                    showAuditDialog,
+                    currentAuditApp,
+                    auditComment,
+                    showAddToolDialog,
+                    currentDatasetType,
+                    selectedToolsForAssoc,
+                    showLicenseDialog,
+                    showExtendDialog,
+                    isEditLicense,
+                    currentLicense,
+                    newEndDate,
+                    apps,
+                    versions,
+                    auditApps,
+                    datasetTypes,
+                    licenses,
+                    newVersionForm,
+                    newAppForm,
+                    licenseForm,
+                    availableApps,
+                    getPageTitle,
+                    getSelectedAppVersions,
+                    getAuditApps,
+                    formatCount,
+                    isExpiringSoon,
+                    openLicenseDialog,
+                    editLicense,
+                    saveLicense,
+                    extendLicense,
+                    confirmExtend,
+                    revokeLicense,
+                    uploadFile,
+                    uploadAppFile,
+                    publishVersion,
+                    rollbackVersion,
+                    openAuditDialog,
+                    approveApp,
+                    rejectApp,
+                    submitNewApp,
+                    editApp,
+                    openAddToolDialog,
+                    toggleToolSelection,
+                    confirmAddToolAssoc,
+                    setDefaultTool,
+                    removeToolAssoc,
+                    saveDatasetConfig,
+                    // 用量统计
+                    statsTimeRange,
+                    statsAppFilter,
+                    installChartRef,
+                    activeUserChartRef,
+                    usageChartRef,
+                    totalInstalls,
+                    activeUsers,
+                    totalUsageHours,
+                    avgUsageMinutes,
+                    statsTableData,
+                    updateCharts,
+                    exportExcel
+                };
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+</html>

@@ -23,11 +23,12 @@
         <div class="workspace-meta">
           <span class="meta-item">
             <el-icon><User /></el-icon>
-            {{ workspace.totalMemberCount || 0 }} 成员
+            {{ workspace.memberCount || 0 }} 成员
           </span>
+          <span class="workspace-creator">{{ formatTime(workspace.createTime) }}</span>
         </div>
         <div class="workspace-footer">
-          <span class="workspace-creator">{{ formatTime(workspace.createTime) }}</span>
+          
           <div class="workspace-actions">
             <el-button link type="primary" size="small" @click.stop="$emit('view-detail', workspace)">
               查看详情

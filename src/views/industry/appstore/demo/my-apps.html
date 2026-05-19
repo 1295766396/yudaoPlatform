@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的应用 - App Store</title>
+    <link href="https://unpkg.com/element-plus@2.4.4/dist/index.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3.3.13/dist/vue.global.prod.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f5f7fa; }
+        #app { padding:24px; max-width:1200px; margin:0 auto; }
+        .back-btn { display:inline-flex; align-items:center; gap:4px; color:#409EFF; text-decoration:none; margin-bottom:16px; font-size:14px; }
+        .back-btn:hover { text-decoration:underline; }
+        .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+        .page-title { font-size:24px; font-weight:600; color:#303133; }
+        .my-apps-container { background:white; border-radius:8px; box-shadow:0 2px 12px rgba(0,0,0,0.04); overflow:hidden; }
+        .filter-bar { padding:16px 24px; border-bottom:1px solid #ebeef5; display:flex; gap:12px; align-items:center; }
+        .app-list { padding:24px; }
+        .app-item { display:flex; align-items:center; gap:16px; padding:20px; border:1px solid #ebeef5; border-radius:8px; margin-bottom:12px; transition:all 0.2s ease; }
+        .app-item:hover { border-color:#409EFF; box-shadow:0 2px 8px rgba(64,158,255,0.1); }
+        .app-icon { flex-shrink:0; width:56px; height:56px; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); border-radius:12px; display:flex; align-items:center; justify-content:center; color:white; }
+        .app-info { flex:1; min-width:0; }
+        .app-name-row { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+        .app-name { font-size:16px; font-weight:600; color:#303133; }
+        .app-meta { font-size:13px; color:#909399; }
+        .app-status { display:flex; align-items:center; gap:8px; font-size:13px; }
+        .status-dot { width:8px; height:8px; border-radius:50%; }
+        .status-installed { background:#67c23a; }
+        .status-update { background:#e6a23c; }
+        .app-actions { display:flex; gap:8px; }
+        .empty-state { text-align:center; padding:60px 20px; color:#909399; }
+        .empty-state svg { width:80px; height:80px; margin-bottom:16px; color:#c0c4cc; }
+        .update-all-btn { display:flex; gap:4px; align-items:center; }
+
+        /* 响应式布局 */
+        @media (max-width: 768px) {
+            #app { padding:16px; }
+            .page-header { flex-direction:column; align-items:flex-start; gap:16px; }
+            .app-item { flex-direction:column; align-items:flex-start; }
+            .app-actions { width:100%; justify-content:flex-end; }
+            .filter-bar { flex-direction:column; align-items:flex-start; }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <a href="app-store-home.html" class="back-btn">
+            <svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            返回应用商店
+        </a>
+        <div class="page-header">
+            <h1 class="page-title">我的应用</h1>
+            <el-button type="primary" @click="updateAll" v-if="hasUpdates" class="update-all-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px">
+                    <path d="M23 4v6h-6"/>
+                    <path d="M1 20v-6h6"/>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/>
+                    <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/>
+                </svg>
+                全部更新
+            </el-button>
+        </div>
+        <div class="my-apps-container">
+            <div class="filter-bar">
+                <el-radio-group v-model="filterStatus" size="default">
+                    <el-radio-button value="all">全部</el-radio-button>
+                    <el-radio-button value="installed">已安装</el-radio-button>
+                    <el-radio-button value="update">可更新</el-radio-button>
+                </el-radio-group>
+            </div>
+            <div class="app-list">
+                <div v-if="filteredApps.length === 0" class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="2" y="3" width="20" height="14" rx="2"/>
+                        <path d="M8 21h8M12 17v4"/>
+                    </svg>
+                    <p>暂无应用</p>
+                </div>
+                <div v-for="app in filteredApps" :key="app.id" class="app-item">
+                    <div class="app-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:28px;height:28px">
+                            <rect x="2" y="3" width="20" height="14" rx="2" v-if="app.icon === 'platform'"/>
+                            <path d="M8 21h8M12 17v4" v-if="app.icon === 'platform'"/>
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" v-if="app.icon === 'check'"/>
+                            <polyline points="22,4 12,14.01 9,11.01" v-if="app.icon === 'check'"/>
+                            <circle cx="12" cy="12" r="3" v-if="app.icon === 'setting'"/>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51v-.09a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51z" v-if="app.icon === 'setting'"/>
+                        </svg>
+                    </div>
+                    <div class="app-info">
+                        <div class="app-name-row">
+                            <span class="app-name">{{ app.name }}</span>
+                            <el-tag v-if="app.isOfficial" type="success" size="small">官方</el-tag>
+                        </div>
+                        <div class="app-meta">{{ app.version }} · {{ app.author }} · 最后更新 {{ app.updateTime }}</div>
+                    </div>
+                    <div class="app-status">
+                        <span v-if="app.status === 'has_update'" class="status-dot status-update"></span>
+                        <span v-else class="status-dot status-installed"></span>
+                        <span style="color:#606266">{{ app.status === 'has_update' ? '有新版本' : '已安装' }}</span>
+                    </div>
+                    <div class="app-actions">
+                        <el-button v-if="app.status === 'has_update'" type="warning" size="small" :loading="app.updating" @click="doUpdate(app)">更新</el-button>
+                        <el-button size="small" @click="showUninstall = true; uninstallApp = app">卸载</el-button>
+                        <el-button size="small">配置</el-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <el-dialog v-model="showUninstall" title="确认卸载" width="420px">
+            <p>确定要卸载「{{ uninstallApp?.name }}」吗？应用数据将被清除。</p>
+            <template #footer>
+                <el-button @click="showUninstall = false">取消</el-button>
+                <el-button type="danger" @click="uninstall">确定卸载</el-button>
+            </template>
+        </el-dialog>
+    </div>
+    <script>
+        const { createApp, ref, computed } = Vue;
+        createApp({
+            setup() {
+                const filterStatus = ref('all');
+                const showUninstall = ref(false);
+                const uninstallApp = ref(null);
+                const apps = ref([
+                    { id: 'app-1', name: 'CATIA集成客户端', icon: 'platform', version: 'v2.1.0', status: 'has_update', updating: false, author: '官方开发组', updateTime: '2026-05-01', isOfficial: true },
+                    { id: 'app-2', name: 'PDQ自动检测工具', icon: 'check', version: 'v3.2.1', status: 'installed', updating: false, author: '官方开发组', updateTime: '2026-05-10', isOfficial: true },
+                    { id: 'app-3', name: 'CATIA环境配置器', icon: 'setting', version: 'v1.5.0', status: 'installed', updating: false, author: '官方开发组', updateTime: '2026-04-20', isOfficial: true },
+                    { id: 'app-9', name: '客户端环境管理器', icon: 'platform', version: 'v2.3.0', status: 'has_update', updating: false, author: '官方开发组', updateTime: '2026-05-13', isOfficial: true }
+                ]);
+                const hasUpdates = computed(() => apps.value.some(a => a.status === 'has_update'));
+                const filteredApps = computed(() => {
+                    if (filterStatus.value === 'all') return apps.value;
+                    return apps.value.filter(a => (filterStatus.value === 'installed' && a.status !== 'has_update') || (filterStatus.value === 'update' && a.status === 'has_update'));
+                });
+                const doUpdate = (app) => {
+                    app.updating = true;
+                    ElementPlus.ElMessage.success(`正在更新 ${app.name}...`);
+                    setTimeout(() => { app.status = 'installed'; app.updating = false; ElementPlus.ElMessage.success(`${app.name} 更新成功！`); }, 2000);
+                };
+                const updateAll = () => {
+                    apps.value.forEach(a => { if (a.status === 'has_update') doUpdate(a); });
+                };
+                const uninstall = () => {
+                    if (!uninstallApp.value) return;
+                    const idx = apps.value.findIndex(a => a.id === uninstallApp.value.id);
+                    if (idx > -1) apps.value.splice(idx, 1);
+                    showUninstall.value = false;
+                    ElementPlus.ElMessage.success('已卸载');
+                };
+                return { filterStatus, showUninstall, uninstallApp, apps, hasUpdates, filteredApps, doUpdate, updateAll, uninstall };
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+</html>

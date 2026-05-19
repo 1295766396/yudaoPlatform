@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据集打开交互 - App Store</title>
+    <link href="https://unpkg.com/element-plus@2.4.4/dist/index.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3.3.13/dist/vue.global.prod.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#f5f7fa; }
+        #app { padding:24px; max-width:1000px; margin:0 auto; }
+        .back-btn { display:inline-flex; align-items:center; gap:4px; color:#409EFF; text-decoration:none; margin-bottom:16px; font-size:14px; }
+        .back-btn:hover { text-decoration:underline; }
+        .page-title { font-size:24px; font-weight:600; color:#303133; margin-bottom:24px; }
+        .scene-container { background:white; border-radius:8px; padding:32px; box-shadow:0 2px 12px rgba(0,0,0,0.04); margin-bottom:24px; }
+        .scene-title { font-size:18px; font-weight:600; color:#303133; margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+        .scene-desc { font-size:14px; color:#909399; margin-bottom:24px; padding:12px 16px; background:#f5f7fa; border-radius:6px; }
+        .dataset-card { display:flex; align-items:center; gap:16px; padding:20px; border:1px solid #ebeef5; border-radius:8px; margin-bottom:20px; }
+        .dataset-icon { width:48px; height:48px; background:#ecf5ff; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#409EFF; }
+        .dataset-info { flex:1; }
+        .dataset-name { font-size:16px; font-weight:600; color:#303133; margin-bottom:4px; }
+        .dataset-meta { font-size:13px; color:#909399; }
+        .open-btn { padding:10px 20px; }
+        .dialog-app-item { display:flex; align-items:center; gap:12px; padding:12px; border:1px solid #ebeef5; border-radius:6px; margin-bottom:8px; cursor:pointer; transition:all 0.2s; }
+        .dialog-app-item:hover { border-color:#409EFF; background:#ecf5ff; }
+        .dialog-app-item.selected { border-color:#409EFF; background:#ecf5ff; }
+        .dialog-app-icon { width:40px; height:40px; background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); border-radius:8px; display:flex; align-items:center; justify-content:center; color:white; }
+        .dialog-app-info { flex:1; }
+        .dialog-app-name { font-size:14px; font-weight:600; color:#303133; }
+        .dialog-app-status { font-size:12px; color:#909399; margin-top:2px; }
+        .status-badge { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:4px; font-size:12px; }
+        .status-ok { background:#f0f9eb; color:#67c23a; }
+        .status-no-auth { background:#fef0f0; color:#f56c6c; }
+        .status-no-install { background:#fdf6ec; color:#e6a23c; }
+        .steps-demo { margin-top:24px; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <a href="index.html" class="back-btn">
+            <svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            返回索引
+        </a>
+        <h1 class="page-title">数据集打开交互演示</h1>
+        <div class="scene-container">
+            <h2 class="scene-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:#667eea">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                </svg>
+                场景1：有默认应用且已授权已安装
+            </h2>
+            <p class="scene-desc">点击打开按钮，系统检测到默认应用（CATIA集成客户端）已授权且已安装，直接拉起本地工具打开文件。</p>
+            <div class="dataset-card">
+                <div class="dataset-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14,2 14,8 20,8"/>
+                    </svg>
+                </div>
+                <div class="dataset-info">
+                    <div class="dataset-name">电机模型.CATPart</div>
+                    <div class="dataset-meta">15.2 MB · 版本 V1.3 · 默认工具：CATIA集成客户端</div>
+                </div>
+                <el-button type="primary" class="open-btn" @click="openDataset1">打开</el-button>
+            </div>
+            <el-steps :active="scene1Step" finish-status="success" class="steps-demo" simple>
+                <el-step title="检测默认应用"/>
+                <el-step title="检查授权状态"/>
+                <el-step title="检查安装状态"/>
+                <el-step title="拉起本地工具"/>
+            </el-steps>
+        </div>
+        <div class="scene-container">
+            <h2 class="scene-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:#e6a23c">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="16" x2="12" y2="12"/>
+                    <line x1="12" y1="8" x2="12.01" y2="8"/>
+                </svg>
+                场景2：未配置默认应用
+            </h2>
+            <p class="scene-desc">点击打开按钮，系统没有检测到默认应用，弹出「选择打开方式」对话框。</p>
+            <div class="dataset-card">
+                <div class="dataset-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14,2 14,8 20,8"/>
+                    </svg>
+                </div>
+                <div class="dataset-info">
+                    <div class="dataset-name">质检规则库.PDQ</div>
+                    <div class="dataset-meta">8.7 MB · 版本 V2.1 · 未配置默认工具</div>
+                </div>
+                <el-button type="primary" class="open-btn" @click="openDataset2">打开</el-button>
+            </div>
+        </div>
+        <div class="scene-container">
+            <h2 class="scene-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;color:#f56c6c">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="15" y1="9" x2="9" y2="15"/>
+                    <line x1="9" y1="9" x2="15" y2="15"/>
+                </svg>
+                场景3：未授权/未安装
+            </h2>
+            <p class="scene-desc">点击打开按钮，检测到应用未授权或未安装，弹出相应提示引导用户完成购买或安装。</p>
+            <div class="dataset-card">
+                <div class="dataset-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14,2 14,8 20,8"/>
+                    </svg>
+                </div>
+                <div class="dataset-info">
+                    <div class="dataset-name">工程图纸.DWG</div>
+                    <div class="dataset-meta">3.2 MB · 版本 V1.0 · 默认工具：工程图转换器（未授权）</div>
+                </div>
+                <el-button type="primary" class="open-btn" @click="openDataset3">打开</el-button>
+            </div>
+        </div>
+        <el-dialog v-model="showOpenDialog" title="选择打开方式" width="600px">
+            <p style="margin-bottom:16px;color:#606266">请选择要使用的工具打开「质检规则库.PDQ」：</p>
+            <div v-for="app in openWithApps" :key="app.id" class="dialog-app-item" :class="{ selected: selectedAppId === app.id }" @click="selectedAppId = app.id">
+                <div class="dialog-app-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" v-if="app.icon === 'check'"/>
+                        <polyline points="22,4 12,14.01 9,11.01" v-if="app.icon === 'check'"/>
+                        <rect x="2" y="3" width="20" height="14" rx="2" v-if="app.icon === 'platform'"/>
+                        <path d="M8 21h8M12 17v4" v-if="app.icon === 'platform'"/>
+                    </svg>
+                </div>
+                <div class="dialog-app-info">
+                    <div class="dialog-app-name">{{ app.name }}</div>
+                    <div class="dialog-app-status">
+                        <span v-if="app.status === 'ok'" class="status-badge status-ok">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="width:12px;height:12px">
+                                <polyline points="20,6 9,17 4,12"/>
+                            </svg>
+                            已授权 · 已安装
+                        </span>
+                        <span v-else-if="app.status === 'no-auth'" class="status-badge status-no-auth">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                            </svg>
+                            未授权，点击购买
+                        </span>
+                        <span v-else class="status-badge status-no-install">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px">
+                                <polyline points="6,9 12,15 18,9"/>
+                                <path d="M12 3v12"/>
+                            </svg>
+                            未安装，点击安装
+                        </span>
+                    </div>
+                </div>
+                <svg v-if="selectedAppId === app.id" viewBox="0 0 24 24" fill="#409EFF" stroke="none" style="width:20px;height:20px">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="20,6 9,17 4,12" stroke="white" stroke-width="3" fill="none"/>
+                </svg>
+            </div>
+            <div style="margin-top:16px">
+                <el-checkbox v-model="setAsDefault">设为默认打开方式，下次不再提示</el-checkbox>
+            </div>
+            <template #footer>
+                <el-button @click="showOpenDialog = false">取消</el-button>
+                <el-button type="primary" @click="confirmOpen" :disabled="!selectedAppId">确认打开</el-button>
+            </template>
+        </el-dialog>
+        <el-dialog v-model="showAuthDialog" title="操作提示" width="480px">
+            <div style="text-align:center;padding:20px 0">
+                <div style="width:64px;height:64px;margin:0 auto 16px;background:#fef0f0;border-radius:50%;display:flex;align-items:center;justify-content:center">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#f56c6c" stroke-width="2" style="width:32px;height:32px">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                </div>
+                <h3 style="font-size:18px;margin-bottom:12px">需要购买授权才能使用此工具</h3>
+                <p style="color:#606266;margin-bottom:8px">您当前未购买「工程图转换器」的使用授权。</p>
+                <p style="color:#909399;font-size:14px">价格：¥ 299 /年 /用户</p>
+            </div>
+            <template #footer>
+                <el-button @click="showAuthDialog = false">取消</el-button>
+                <el-button type="primary">去应用商店了解详情</el-button>
+                <el-button type="success">立即购买</el-button>
+            </template>
+        </el-dialog>
+        <el-dialog v-model="showInstallDialog" title="操作提示" width="480px">
+            <div style="text-align:center;padding:20px 0">
+                <div style="width:64px;height:64px;margin:0 auto 16px;background:#fdf6ec;border-radius:50%;display:flex;align-items:center;justify-content:center">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#e6a23c" stroke-width="2" style="width:32px;height:32px">
+                        <polyline points="6,9 12,15 18,9"/>
+                        <path d="M12 3v12"/>
+                        <path d="M19 21H5"/>
+                    </svg>
+                </div>
+                <h3 style="font-size:18px;margin-bottom:12px">需要安装本地客户端</h3>
+                <p style="color:#606266;margin-bottom:8px">您还未安装「CATIA集成客户端」，是否立即安装？</p>
+                <p style="color:#909399;font-size:14px">版本：v2.1.0 · 大小：125 MB</p>
+            </div>
+            <template #footer>
+                <el-button @click="showInstallDialog = false">取消</el-button>
+                <el-button type="primary" @click="doInstall">立即安装</el-button>
+            </template>
+        </el-dialog>
+        <el-dialog v-model="showSuccess" title="文件已打开" width="400px">
+            <div style="text-align:center;padding:20px 0">
+                <div style="width:64px;height:64px;margin:0 auto 16px;background:#f0f9eb;border-radius:50%;display:flex;align-items:center;justify-content:center">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#67c23a" stroke-width="3" style="width:36px;height:36px">
+                        <polyline points="20,6 9,17 4,12"/>
+                    </svg>
+                </div>
+                <p style="color:#606266">已通过 CATIA集成客户端 打开文件</p>
+            </div>
+            <template #footer>
+                <el-button type="primary" @click="showSuccess = false">确定</el-button>
+            </template>
+        </el-dialog>
+    </div>
+    <script>
+        const { createApp, ref } = Vue;
+        createApp({
+            setup() {
+                const scene1Step = ref(0);
+                const showOpenDialog = ref(false);
+                const showAuthDialog = ref(false);
+                const showInstallDialog = ref(false);
+                const showSuccess = ref(false);
+                const selectedAppId = ref(null);
+                const setAsDefault = ref(false);
+                const openWithApps = ref([
+                    { id: 'app-2', name: 'PDQ自动检测工具', icon: 'check', status: 'ok' },
+                    { id: 'app-1', name: 'CATIA集成客户端', icon: 'platform', status: 'ok' },
+                    { id: 'app-4', name: '工程图转换器', icon: 'platform', status: 'no-auth' }
+                ]);
+                const openDataset1 = () => {
+                    scene1Step.value = 1;
+                    setTimeout(() => { scene1Step.value = 2; }, 600);
+                    setTimeout(() => { scene1Step.value = 3; }, 1200);
+                    setTimeout(() => { scene1Step.value = 4; showSuccess.value = true; }, 1800);
+                };
+                const openDataset2 = () => {
+                    showOpenDialog.value = true;
+                    selectedAppId.value = null;
+                };
+                const openDataset3 = () => {
+                    showAuthDialog.value = true;
+                };
+                const confirmOpen = () => {
+                    showOpenDialog.value = false;
+                    const app = openWithApps.value.find(a => a.id === selectedAppId.value);
+                    if (app?.status === 'ok') {
+                        showSuccess.value = true;
+                    } else if (app?.status === 'no-auth') {
+                        showAuthDialog.value = true;
+                    } else {
+                        showInstallDialog.value = true;
+                    }
+                };
+                const doInstall = () => {
+                    showInstallDialog.value = false;
+                    ElementPlus.ElMessage.success('正在下载并安装...');
+                    setTimeout(() => { ElementPlus.ElMessage.success('安装完成！'); showSuccess.value = true; }, 2000);
+                };
+                return { scene1Step, showOpenDialog, showAuthDialog, showInstallDialog, showSuccess, selectedAppId, setAsDefault, openWithApps, openDataset1, openDataset2, openDataset3, confirmOpen, doInstall };
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+</html>

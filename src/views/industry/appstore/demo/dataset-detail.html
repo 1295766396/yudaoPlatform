@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据集详情 - PLM App Store</title>
+    <link href="https://unpkg.com/element-plus@2.4.4/dist/index.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3.3.13/dist/vue.global.prod.js"></script>
+    <script src="https://unpkg.com/element-plus@2.4.4/dist/index.full.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+        }
+
+        #app {
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 32px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.35);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: white;
+            text-decoration: none;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+            font-size: 14px;
+        }
+
+        .back-btn:hover {
+            opacity: 1;
+        }
+
+        .dataset-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        .dataset-main {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .dataset-info h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .dataset-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .content-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #303133;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .default-tool-card {
+            background: #f0f9ff;
+            border: 1px solid #e0f2fe;
+            border-radius: 8px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .tool-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tool-icon {
+            width: 48px;
+            height: 48px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .tool-details h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #303133;
+            margin-bottom: 4px;
+        }
+
+        .tool-details p {
+            font-size: 13px;
+            color: #909399;
+        }
+
+        .tool-status {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .status-badge {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .status-badge.success {
+            background: #f0f9eb;
+            color: #67c23a;
+        }
+
+        .status-badge.warning {
+            background: #fdf6ec;
+            color: #e6a23c;
+        }
+
+        .version-history-item {
+            padding: 16px 0;
+            border-bottom: 1px solid #ebeef5;
+        }
+
+        .version-history-item:last-child {
+            border-bottom: none;
+        }
+
+        .version-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .version-number {
+            font-weight: 600;
+            color: #303133;
+        }
+
+        .version-time {
+            font-size: 13px;
+            color: #909399;
+        }
+
+        .related-tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .related-tool-card {
+            border: 1px solid #ebeef5;
+            border-radius: 8px;
+            padding: 16px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .related-tool-card:hover {
+            border-color: #409eff;
+            box-shadow: 0 2px 12px rgba(64, 158, 255, 0.1);
+        }
+
+        .related-tool-card.is-default {
+            border-color: #67c23a;
+            background: #f0f9eb;
+        }
+
+        .related-tool-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .related-tool-icon {
+            width: 40px;
+            height: 40px;
+            background: #f5f7fa;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .related-tool-name {
+            font-weight: 600;
+            color: #303133;
+            font-size: 15px;
+        }
+
+        .related-tool-desc {
+            font-size: 13px;
+            color: #606266;
+            margin-bottom: 12px;
+        }
+
+        /* 优化动画和响应式布局 */
+        .related-tool-card {
+            border: 1px solid #ebeef5;
+            border-radius: 8px;
+            padding: 16px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        /* 响应式布局 */
+        @media (max-width: 768px) {
+            #app { padding: 16px; }
+            .header { padding: 20px; }
+            .dataset-main { flex-direction: column; align-items: flex-start; }
+            .dataset-meta { flex-wrap: wrap; gap: 12px; }
+            .action-buttons { flex-direction: column; }
+            .action-buttons .el-button { width: 100%; }
+            .default-tool-card { flex-direction: column; gap: 16px; align-items: flex-start; }
+            .tool-status { width: 100%; justify-content: flex-end; }
+            .related-tools-grid { grid-template-columns: 1fr; }
+            .version-header { flex-direction: column; align-items: flex-start; gap: 4px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <div class="header-top">
+                <a href="app-store-home.html" class="back-btn">
+                    <svg style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    返回数据列表
+                </a>
+            </div>
+            <div class="dataset-main">
+                <div class="dataset-icon">📄</div>
+                <div class="dataset-info">
+                    <h1>{{ dataset.name }}</h1>
+                    <div class="dataset-meta">
+                        <span>📦 {{ dataset.format }}</span>
+                        <span>📏 {{ dataset.size }}</span>
+                        <span>🔢 版本 {{ dataset.version }}</span>
+                        <span>👤 {{ dataset.owner }}</span>
+                        <span>📅 {{ dataset.updateTime }}</span>
+                    </div>
+                    <div class="action-buttons">
+                        <el-button type="primary" size="large" @click="openDataset">
+                            <span style="margin-right: 6px;">🔓</span>
+                            打开
+                        </el-button>
+                        <el-button size="large" @click="downloadDataset">
+                            <span style="margin-right: 6px;">📥</span>
+                            下载
+                        </el-button>
+                        <el-dropdown @command="handleDropdownCommand" trigger="click">
+                            <el-button size="large">
+                                <span style="margin-right: 6px;">🔧</span>
+                                关联工具
+                                <span class="el-dropdown__icon">
+                                    <svg style="width:12px;height:12px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M6 9l6 6 6-6"/>
+                                    </svg>
+                                </span>
+                            </el-button>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item 
+                                        v-for="tool in relatedTools" 
+                                        :key="tool.id"
+                                        :command="{ type: 'open', tool: tool }"
+                                        class="tool-dropdown-item"
+                                    >
+                                        <span style="display: flex; align-items: center; gap: 8px;">
+                                            <span>{{ tool.icon }}</span>
+                                            <span>{{ tool.name }}</span>
+                                            <el-tag v-if="tool.isDefault" type="success" size="small">默认</el-tag>
+                                        </span>
+                                    </el-dropdown-item>
+                                    <el-dropdown-item divided>
+                                        <span style="color: #909399; font-size: 12px;">设置</span>
+                                    </el-dropdown-item>
+                                    <el-dropdown-item 
+                                        v-for="tool in relatedTools" 
+                                        :key="'set-default-' + tool.id"
+                                        :command="{ type: 'setDefault', tool: tool }"
+                                        v-if="!tool.isDefault"
+                                        class="set-default-item"
+                                    >
+                                        <span style="display: flex; align-items: center; gap: 8px;">
+                                            <span>⭐</span>
+                                            <span>设 "{{ tool.name }}" 为默认</span>
+                                        </span>
+                                    </el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
+                        <el-button size="large" @click="showOpenWithDialog">
+                            <span style="margin-right: 6px;">⚙️</span>
+                            选择打开方式
+                        </el-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h3 class="section-title">
+                ⭐ 默认打开工具
+            </h3>
+            <div class="default-tool-card">
+                <div class="tool-info">
+                    <div class="tool-icon">{{ defaultTool.icon }}</div>
+                    <div class="tool-details">
+                        <h4>{{ defaultTool.name }} 
+                            <el-tag type="success" size="small" style="margin-left: 8px;">默认</el-tag>
+                        </h4>
+                        <p>{{ defaultTool.description }}</p>
+                    </div>
+                </div>
+                <div class="tool-status">
+                    <span class="status-badge" :class="defaultTool.authorized ? 'success' : 'warning'">
+                        {{ defaultTool.authorized ? '✓ 已授权' : '⏳ 未授权' }}
+                    </span>
+                    <span class="status-badge" :class="defaultTool.installed ? 'success' : 'warning'">
+                        {{ defaultTool.installed ? '✓ 已安装' : '⏳ 未安装' }}
+                    </span>
+                    <el-button type="primary" size="small" @click="openWithDefaultTool">使用该工具打开</el-button>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h3 class="section-title">
+                📝 数据集说明
+            </h3>
+            <p style="color: #606266; line-height: 1.8;">{{ dataset.description }}</p>
+        </div>
+
+        <div class="content-section">
+            <h3 class="section-title">
+                🔗 支持的打开工具
+            </h3>
+            <div class="related-tools-grid">
+                <div 
+                    v-for="tool in relatedTools" 
+                    :key="tool.id"
+                    class="related-tool-card"
+                    :class="{ 'is-default': tool.isDefault }"
+                    @click="openWithTool(tool)"
+                >
+                    <div class="related-tool-header">
+                        <div class="related-tool-icon">{{ tool.icon }}</div>
+                        <div>
+                            <div class="related-tool-name">
+                                {{ tool.name }}
+                                <el-tag v-if="tool.isDefault" type="success" size="small" style="margin-left: 8px;">默认</el-tag>
+                            </div>
+                            <div style="font-size: 12px; color: #909399; margin-top: 4px;">
+                                {{ tool.authorized ? '✓ 已授权' : '⏳ 未授权' }} 
+                                {{ tool.installed ? '· ✓ 已安装' : '· ⏳ 未安装' }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="related-tool-desc">{{ tool.description }}</div>
+                    <div style="display: flex; gap: 8px;">
+                        <el-button size="small" type="primary" @click.stop="openWithTool(tool)">打开</el-button>
+                        <el-button size="small" @click.stop="setAsDefault(tool)" v-if="!tool.isDefault">设为默认</el-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h3 class="section-title">
+                📜 版本历史
+            </h3>
+            <div class="version-history">
+                <div v-for="version in dataset.versions" :key="version.id" class="version-history-item">
+                    <div class="version-header">
+                        <span class="version-number">{{ version.version }}</span>
+                        <span class="version-time">{{ version.updateTime }}</span>
+                    </div>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <span style="font-size: 13px; color: #606266;">{{ version.description }}</span>
+                        <el-button size="small" type="text">查看此版本</el-button>
+                        <el-button size="small" type="text">恢复此版本</el-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 选择打开方式弹窗 -->
+        <el-dialog v-model="openWithDialogVisible" title="选择打开方式" width="550px">
+            <p style="margin-bottom: 16px; color: #606266;">请选择要使用的工具打开此数据集：</p>
+            <div style="max-height: 300px; overflow-y: auto;">
+                <div 
+                    v-for="tool in relatedTools" 
+                    :key="tool.id"
+                    style="border: 1px solid #ebeef5; border-radius: 8px; padding: 12px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s;"
+                    :style="{ borderColor: selectedToolForOpen && selectedToolForOpen.id === tool.id ? '#409eff' : '#ebeef5', background: selectedToolForOpen && selectedToolForOpen.id === tool.id ? '#f0f9ff' : 'white' }"
+                    @click="selectedToolForOpen = tool"
+                >
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span style="font-size: 28px;">{{ tool.icon }}</span>
+                            <div>
+                                <div style="font-weight: 600; color: #303133;">{{ tool.name }}</div>
+                                <div style="font-size: 13px; color: #909399; margin-top: 4px;">{{ tool.description }}</div>
+                                <div style="font-size: 12px; color: #606266; margin-top: 6px;">
+                                    <el-tag size="small" :type="tool.authorized ? 'success' : 'warning'" style="margin-right: 8px;">
+                                        {{ tool.authorized ? '已授权' : '未授权' }}
+                                    </el-tag>
+                                    <el-tag size="small" :type="tool.installed ? 'success' : 'warning'">
+                                        {{ tool.installed ? '已安装' : '未安装' }}
+                                    </el-tag>
+                                </div>
+                            </div>
+                        </div>
+                        <svg v-if="selectedToolForOpen && selectedToolForOpen.id === tool.id" style="width:24px;height:24px;color:#409eff" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M9 12l2 2 4-4" stroke="white" stroke-width="2" fill="none"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 16px;">
+                <el-checkbox v-model="setAsDefaultAfterSelect">设为默认打开方式，下次不再提示</el-checkbox>
+            </div>
+            <template #footer>
+                <el-button @click="openWithDialogVisible = false">取消</el-button>
+                <el-button type="primary" @click="confirmOpenWithSelected" :disabled="!selectedToolForOpen">确认打开</el-button>
+            </template>
+        </el-dialog>
+
+        <!-- 未授权提示弹窗 -->
+        <el-dialog v-model="notAuthorizedDialogVisible" title="操作提示" width="480px">
+            <div style="text-align: center; padding: 24px 0;">
+                <div style="font-size: 48px; margin-bottom: 16px;">🔐</div>
+                <h3 style="font-size: 18px; color: #303133; margin-bottom: 12px;">需要购买授权才能使用此工具</h3>
+                <p style="color: #606266; margin-bottom: 20px;">您当前未购买"{{ currentToolForAuth?.name }}"的使用授权。</p>
+                <div style="background: #f5f7fa; padding: 16px; border-radius: 8px; margin-bottom: 24px;">
+                    <div style="font-size: 20px; font-weight: 600; color: #409eff;">
+                        ¥ {{ currentToolForAuth?.price }} / 年 / 用户
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: center; gap: 12px;">
+                    <el-button @click="goToAppStore(currentToolForAuth)">去应用商店了解详情</el-button>
+                    <el-button type="primary" @click="buyLicense(currentToolForAuth)">立即购买</el-button>
+                </div>
+            </div>
+        </el-dialog>
+
+        <!-- 未安装提示弹窗 -->
+        <el-dialog v-model="notInstalledDialogVisible" title="操作提示" width="480px">
+            <div style="text-align: center; padding: 24px 0;">
+                <div style="font-size: 48px; margin-bottom: 16px;">📦</div>
+                <h3 style="font-size: 18px; color: #303133; margin-bottom: 12px;">需要安装本地客户端</h3>
+                <p style="color: #606266; margin-bottom: 20px;">您还未安装"{{ currentToolForInstall?.name }}"，是否立即安装？</p>
+                <div style="background: #f5f7fa; padding: 16px; border-radius: 8px; margin-bottom: 24px; text-align: left;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #909399;">版本</span>
+                        <span style="color: #303133;">{{ currentToolForInstall?.version }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: #909399;">大小</span>
+                        <span style="color: #303133;">{{ currentToolForInstall?.size }}</span>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: center; gap: 12px;">
+                    <el-button @click="notInstalledDialogVisible = false">取消</el-button>
+                    <el-button type="primary" @click="installTool(currentToolForInstall)">立即安装</el-button>
+                </div>
+            </div>
+        </el-dialog>
+
+        <!-- 打开成功提示 -->
+        <el-dialog v-model="openSuccessDialogVisible" title="操作成功" width="400px" center>
+            <div style="text-align: center; padding: 20px 0;">
+                <div style="font-size: 48px; margin-bottom: 16px;">✅</div>
+                <h3 style="font-size: 18px; color: #303133; margin-bottom: 12px;">正在启动本地工具...</h3>
+                <p style="color: #606266; margin-bottom: 20px;">{{ dataset.name }} 正在使用 {{ openingToolName }} 打开</p>
+                <el-button type="primary" @click="openSuccessDialogVisible = false">我知道了</el-button>
+            </div>
+        </el-dialog>
+    </div>
+
+    <script>
+        const { createApp, ref } = Vue;
+
+        createApp({
+            setup() {
+                // 数据集数据
+                const dataset = ref({
+                    id: 'ds-001',
+                    name: '电机模型.CATPart',
+                    format: 'CATPart',
+                    size: '15.2 MB',
+                    version: 'V1.3',
+                    owner: '李工',
+                    updateTime: '2026-05-18 14:30',
+                    description: '这是一个完整的电机三维模型，包含定子、转子、外壳等部件。该模型用于产品设计评审和工艺分析。支持在CATIA中进行参数化修改和工程图生成。',
+                    versions: [
+                        { id: 'v1', version: 'V1.3', updateTime: '2026-05-18 14:30', description: '优化了转子结构' },
+                        { id: 'v2', version: 'V1.2', updateTime: '2026-05-10 10:15', description: '添加了外壳部件' },
+                        { id: 'v3', version: 'V1.1', updateTime: '2026-04-28 16:45', description: '初始版本发布' }
+                    ]
+                });
+
+                // 默认工具
+                const defaultTool = ref({
+                    id: 'app-1',
+                    name: 'CATIA集成客户端',
+                    icon: '🔧',
+                    description: 'CATIA V5/V6与平台深度集成',
+                    authorized: true,
+                    installed: true,
+                    version: 'v2.1.0',
+                    size: '125 MB',
+                    price: 999,
+                    isDefault: true
+                });
+
+                // 支持的工具列表
+                const relatedTools = ref([
+                    {
+                        id: 'app-1',
+                        name: 'CATIA集成客户端',
+                        icon: '🔧',
+                        description: 'CATIA V5/V6与平台深度集成',
+                        authorized: true,
+                        installed: true,
+                        version: 'v2.1.0',
+                        size: '125 MB',
+                        price: 999,
+                        isDefault: true
+                    },
+                    {
+                        id: 'app-2',
+                        name: 'PDQ质检工具',
+                        icon: '📊',
+                        description: '自动化产品数据质量检查',
+                        authorized: true,
+                        installed: true,
+                        version: 'v3.2.1',
+                        size: '68 MB',
+                        price: 0,
+                        isDefault: false
+                    },
+                    {
+                        id: 'app-4',
+                        name: '轻量化模型查看器',
+                        icon: '👁️',
+                        description: '无需CATIA环境直接查看三维模型',
+                        authorized: false,
+                        installed: false,
+                        version: 'v1.2.0',
+                        size: '45 MB',
+                        price: 299,
+                        isDefault: false
+                    }
+                ]);
+
+                // 弹窗状态
+                const openWithDialogVisible = ref(false);
+                const notAuthorizedDialogVisible = ref(false);
+                const notInstalledDialogVisible = ref(false);
+                const openSuccessDialogVisible = ref(false);
+                const selectedToolForOpen = ref(null);
+                const setAsDefaultAfterSelect = ref(false);
+                const currentToolForAuth = ref(null);
+                const currentToolForInstall = ref(null);
+                const openingToolName = ref('');
+
+                // 打开数据集
+                const openDataset = () => {
+                    openWithTool(defaultTool.value);
+                };
+
+                // 下载数据集
+                const downloadDataset = () => {
+                    ElementPlus.ElMessage.success('正在下载数据集...');
+                };
+
+                // 使用默认工具打开
+                const openWithDefaultTool = () => {
+                    openWithTool(defaultTool.value);
+                };
+
+                // 使用指定工具打开
+                const openWithTool = (tool) => {
+                    if (!tool.authorized) {
+                        currentToolForAuth.value = tool;
+                        notAuthorizedDialogVisible.value = true;
+                        return;
+                    }
+                    
+                    if (!tool.installed) {
+                        currentToolForInstall.value = tool;
+                        notInstalledDialogVisible.value = true;
+                        return;
+                    }
+                    
+                    openingToolName.value = tool.name;
+                    openSuccessDialogVisible.value = true;
+                    ElementPlus.ElMessage.success(`正在使用 ${tool.name} 打开数据集...`);
+                    console.log('调用本地工具协议:', `ragentic://tool/${tool.id}/open?dataset_id=${dataset.value.id}`);
+                };
+
+                // 显示选择打开方式弹窗
+                const showOpenWithDialog = () => {
+                    selectedToolForOpen.value = null;
+                    openWithDialogVisible.value = true;
+                };
+
+                // 确认使用选中的工具打开
+                const confirmOpenWithSelected = () => {
+                    if (!selectedToolForOpen.value) return;
+                    
+                    if (setAsDefaultAfterSelect.value) {
+                        setAsDefault(selectedToolForOpen.value);
+                    }
+                    
+                    openWithDialogVisible.value = false;
+                    openWithTool(selectedToolForOpen.value);
+                };
+
+                // 设为默认工具
+                const setAsDefault = (tool) => {
+                    relatedTools.value.forEach(t => t.isDefault = false);
+                    const targetTool = relatedTools.value.find(t => t.id === tool.id);
+                    if (targetTool) {
+                        targetTool.isDefault = true;
+                        defaultTool.value = { ...targetTool };
+                    }
+                    ElementPlus.ElMessage.success(`已将 ${tool.name} 设为默认打开工具`);
+                };
+
+                // 去应用商店
+                const goToAppStore = (tool) => {
+                    window.location.href = 'app-detail.html';
+                };
+
+                // 购买授权
+                const buyLicense = (tool) => {
+                    ElementPlus.ElMessage.success('正在跳转至购买页面...');
+                    notAuthorizedDialogVisible.value = false;
+                };
+
+                // 安装工具
+                const installTool = (tool) => {
+                    notInstalledDialogVisible.value = false;
+                    ElementPlus.ElMessage.success('正在下载安装包...');
+                    setTimeout(() => {
+                        ElementPlus.ElMessage.success(`${tool.name} 安装成功！`);
+                        tool.installed = true;
+                        if (tool.id === defaultTool.value.id) {
+                            defaultTool.value.installed = true;
+                        }
+                        const relatedTool = relatedTools.value.find(t => t.id === tool.id);
+                        if (relatedTool) {
+                            relatedTool.installed = true;
+                        }
+                    }, 2000);
+                };
+
+                // 处理下拉菜单命令
+                const handleDropdownCommand = (command) => {
+                    if (command.type === 'open') {
+                        openWithTool(command.tool);
+                    } else if (command.type === 'setDefault') {
+                        setAsDefault(command.tool);
+                    }
+                };
+
+                return {
+                    dataset,
+                    defaultTool,
+                    relatedTools,
+                    openWithDialogVisible,
+                    notAuthorizedDialogVisible,
+                    notInstalledDialogVisible,
+                    openSuccessDialogVisible,
+                    selectedToolForOpen,
+                    setAsDefaultAfterSelect,
+                    currentToolForAuth,
+                    currentToolForInstall,
+                    openingToolName,
+                    openDataset,
+                    downloadDataset,
+                    openWithDefaultTool,
+                    openWithTool,
+                    showOpenWithDialog,
+                    confirmOpenWithSelected,
+                    setAsDefault,
+                    goToAppStore,
+                    buyLicense,
+                    installTool,
+                    handleDropdownCommand
+                };
+            }
+        }).use(ElementPlus).mount('#app');
+    </script>
+</body>
+</html>
